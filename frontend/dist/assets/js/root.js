@@ -7118,11 +7118,11 @@ function Summary({ data }) {
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { direction: "row", justifyContent: "space-evenly", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Text, { zIndex: 2, children: data.summary[0] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { alignItems: "center", justifyContent: "center", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Text, { zIndex: 2, fontWeight: 700, fontSize: "16px", mt: "-5px", children: data.category }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Text, { zIndex: 2, fontWeight: 700, fontSize: "16px", mt: "-5px", children: data.features[0] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           DonutGraph,
           {
-            value: data.average_rating
+            value: data.ratings[0]
           }
         )
       ] })
@@ -7207,13 +7207,13 @@ function Badge({ url, title }) {
     // {isOpen: url === 'https://www.amazon.com/gp/help/customer/display.html/ref=ap_register_notification_condition_of_use?ie=UTF8&nodeId=508088'}
   );
   return /* @__PURE__ */ jsxRuntimeExports.jsx(Box, { className: "tnc-crawler-content-container", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Popover, { returnFocusOnClose: false, isOpen, onClose, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(PopoverTrigger, { children: isFetching ? /* @__PURE__ */ jsxRuntimeExports.jsx(BounceLoader, { size: 25, speedMultiplier: 1.2, color: "blue" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(
+    /* @__PURE__ */ jsxRuntimeExports.jsx(PopoverTrigger, { children: isFetching ? /* @__PURE__ */ jsxRuntimeExports.jsx(BounceLoader, { size: 25, speedMultiplier: 1.2, color: "#2257A0" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(
       "button",
       {
         type: "button",
         style: {
           cursor: "pointer",
-          backgroundColor: "blue",
+          backgroundColor: "#2257A0",
           border: "none",
           borderRadius: "50%",
           width: "25px",
@@ -7257,7 +7257,6 @@ function Badge({ url, title }) {
     ] }) }) })
   ] }) });
 }
-const injectedStyle = ".tnc-crawler-content-container * {\n   box-sizing: border-box !important;\n   margin: 0 !important;\n   padding: 0 !important;\n   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;\n}";
 const theme = extendTheme({
   fonts: {
     heading: `'Open Sans', sans-serif`,
@@ -7272,11 +7271,9 @@ const rootIntoShadow = document.createElement("div");
 rootIntoShadow.id = "shadow-root";
 const shadowRoot = root.attachShadow({ mode: "open" });
 shadowRoot.appendChild(rootIntoShadow);
-const styleElement = document.createElement("style");
-styleElement.innerHTML = injectedStyle;
-shadowRoot.appendChild(styleElement);
 const legalDocumentRegex = /\bagreement\b|\bprivacy policy\b|\bprivacy notice\b|\bcookie policy\b|\bterms and conditions\b|\bterms & conditions\b|\bterms of use\b|\bt&c\b|\bconditions of use\b|\bterms of service\b/i;
 const anchorEls = Array.from(document.getElementsByTagName("a")).filter((anchorEl) => legalDocumentRegex.test(anchorEl.innerText));
+console.log(anchorEls);
 createRoot(rootIntoShadow).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(ChakraProvider, { theme, children: anchorEls.map((anchorEl) => {
     const containerDiv = document.createElement("div");

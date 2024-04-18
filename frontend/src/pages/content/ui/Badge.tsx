@@ -52,12 +52,12 @@ export default function Badge({ url, title }: { url: string, title: string }) {
             <PopoverTrigger>
                {/* <div style={{ backgroundColor: "green", borderRadius: "50%", width: "20px", height: "20px", cursor: "pointer" }} /> */}
                {isFetching
-                  ? (<BounceLoader size={25} speedMultiplier={1.2} color='blue' />)
+                  ? (<BounceLoader size={25} speedMultiplier={1.2} color='#2257A0' />)
                   : (<button
                         type='button'
                         style={{ 
                            cursor: "pointer", 
-                           backgroundColor: "blue", 
+                           backgroundColor: "#2257A0", 
                            border: "none", 
                            borderRadius: "50%", 
                            width: "25px", 

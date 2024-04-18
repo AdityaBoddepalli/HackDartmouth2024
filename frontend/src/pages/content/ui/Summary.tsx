@@ -6,12 +6,15 @@ export default function Summary({ data }) {
 
    return data != undefined && (
       <Box px="5px" py="10px" overflowY="scroll">
+         {/* <Stack direction="row">
+
+         </Stack> */}
          <Stack direction="row" justifyContent="space-evenly">
             <Text zIndex={2}>{data.summary[0]}</Text>
             <Stack alignItems="center" justifyContent="center">
-               <Text zIndex={2} fontWeight={700} fontSize="16px" mt="-5px">{data.category}</Text>
+               <Text zIndex={2} fontWeight={700} fontSize="16px" mt="-5px">{data.features[0]}</Text>
                <DonutGraph 
-                  value={data.average_rating}
+                  value={data.ratings[0]}
                />
             </Stack>
          </Stack>

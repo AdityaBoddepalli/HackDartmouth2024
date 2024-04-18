@@ -1,3 +1,6 @@
+// import icon128 from "./src/assets/img/icon-128.png";
+// import icon32 from "./src/assets/img/icon-32.png";
+
 import fs from 'node:fs';
 const packageJson = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
 
@@ -31,13 +34,14 @@ const manifest = {
   },
   action: {
     default_popup: 'src/pages/popup/index.html',
-    default_icon: 'icon-34.png',
+    default_icon: 'icon32.png',
   },
   // chrome_url_overrides: {
   //   newtab: 'src/pages/newtab/index.html',
   // },
   icons: {
-    128: 'icon-128.png',
+    16: 'icon16.png',
+    32: 'icon32.png'
   },
   content_scripts: [
     // {
@@ -57,9 +61,7 @@ const manifest = {
     {
       resources: [
         'assets/js/*.js', 
-        'assets/css/*.css', 
-        'icon-128.png', 
-        'icon-34.png',
+        'assets/css/*.css',
         "localhost:3000/*" // TODO: add api url
       ],
       matches: ['*://*/*'],

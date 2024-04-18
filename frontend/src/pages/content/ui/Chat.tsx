@@ -9,7 +9,8 @@ import {
    Stack,
    Text,
    Textarea,
-   IconButton
+   IconButton,
+   CardFooter
 } from "@chakra-ui/react";
 import { getChatResponse } from "../../../api/content";
 import getSessionToken from "../../../../utils/sessionTokenStorage";
@@ -64,6 +65,7 @@ export default function Chat({ url, domainName, title }: { url: string, domainNa
                ))
             )}
          </Stack>
+         {/* #2257A0 */}
          <Stack direction="row" alignItems="center">
             <Textarea 
                display="block" 

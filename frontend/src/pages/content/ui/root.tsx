@@ -2,7 +2,7 @@ import { createRoot } from 'react-dom/client';
 import { createPortal } from "react-dom";
 import Badge from '@pages/content/ui/Badge';
 import refreshOnUpdate from 'virtual:reload-on-update-in-view';
-import injectedStyle from './injected.css?inline';
+// import injectedStyle from './injected.css?inline';
 
 import { ChakraProvider } from "@chakra-ui/react";
 import { extendTheme } from '@chakra-ui/react';
@@ -32,14 +32,14 @@ const shadowRoot = root.attachShadow({ mode: 'open' });
 shadowRoot.appendChild(rootIntoShadow);
 
 /** Inject styles into shadow dom */
-const styleElement = document.createElement('style');
-styleElement.innerHTML = injectedStyle;
-shadowRoot.appendChild(styleElement);
+// const styleElement = document.createElement('style');
+// styleElement.innerHTML = injectedStyle;
+// shadowRoot.appendChild(styleElement);
 
 
 const legalDocumentRegex = /\bagreement\b|\bprivacy policy\b|\bprivacy notice\b|\bcookie policy\b|\bterms and conditions\b|\bterms & conditions\b|\bterms of use\b|\bt&c\b|\bconditions of use\b|\bterms of service\b/i;
 const anchorEls = Array.from(document.getElementsByTagName('a')).filter((anchorEl) => legalDocumentRegex.test(anchorEl.innerText));
-
+console.log(anchorEls);
 createRoot(rootIntoShadow).render(
    <ChakraProvider theme={theme}>
       {anchorEls.map((anchorEl) => {
