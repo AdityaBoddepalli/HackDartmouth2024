@@ -1,13 +1,6 @@
-import { r as reactExports, j as jsxRuntimeExports, R as React, c as createRoot } from "./client.js";
-import { a as addHmrIntoView } from "./_virtual_reload-on-update-in-view.js";
+import { r as reactExports, R as React, j as jsxRuntimeExports, a as React$1, b as reactDomExports, c as createRoot } from "./client.js";
 import { c as commonjsGlobal, g as getDefaultExportFromCjs } from "./_commonjsHelpers.js";
-function App() {
-  reactExports.useEffect(() => {
-    console.log("content view loaded");
-  }, []);
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "", children: "content view" });
-}
-const injectedStyle = "";
+import { a as addHmrIntoView } from "./_virtual_reload-on-update-in-view.js";
 function sheetForTag(tag) {
   if (tag.sheet) {
     return tag.sheet;
@@ -888,6 +881,17 @@ var TYPE_STATICS = {};
 TYPE_STATICS[reactIs.ForwardRef] = FORWARD_REF_STATICS;
 TYPE_STATICS[reactIs.Memo] = MEMO_STATICS;
 var isBrowser = true;
+function getRegisteredStyles(registered, registeredStyles, classNames) {
+  var rawClassName = "";
+  classNames.split(" ").forEach(function(className) {
+    if (registered[className] !== void 0) {
+      registeredStyles.push(registered[className] + ";");
+    } else {
+      rawClassName += className + " ";
+    }
+  });
+  return rawClassName;
+}
 var registerStyles = function registerStyles2(cache, serialized, isStringTag) {
   var className = cache.key + "-" + serialized.name;
   if (
@@ -1158,7 +1162,11 @@ var serializeStyles = function serializeStyles2(args, registered, mergedProps) {
     next: cursor
   };
 };
+var syncFallback = function syncFallback2(create) {
+  return create();
+};
 var useInsertionEffect = React["useInsertionEffect"] ? React["useInsertionEffect"] : false;
+var useInsertionEffectAlwaysWithSyncFallback = useInsertionEffect || syncFallback;
 var useInsertionEffectWithLayoutFallback = useInsertionEffect || reactExports.useLayoutEffect;
 var EmotionCacheContext = /* @__PURE__ */ reactExports.createContext(
   // we're doing this to avoid preconstruct's dead code elimination in this one case
@@ -1246,6 +1254,24 @@ var Global = /* @__PURE__ */ withEmotionCache(function(props, cache) {
   }, [cache, serialized.name]);
   return null;
 });
+function css$2() {
+  for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+    args[_key] = arguments[_key];
+  }
+  return serializeStyles(args);
+}
+var keyframes = function keyframes2() {
+  var insertable = css$2.apply(void 0, arguments);
+  var name = "animation-" + insertable.name;
+  return {
+    name,
+    styles: "@keyframes " + name + "{" + insertable.styles + "}",
+    anim: 1,
+    toString: function toString() {
+      return "_EMO_" + this.name + "_" + this.styles + "_EMO_";
+    }
+  };
+};
 var css$1 = String.raw;
 var vhPolyfill = css$1`
   :root,
@@ -1533,6 +1559,46 @@ var CSSReset = ({ scope = "" }) => /* @__PURE__ */ jsxRuntimeExports.jsx(
     `
   }
 );
+function getErrorMessage(hook, provider) {
+  return `${hook} returned \`undefined\`. Seems you forgot to wrap component within ${provider}`;
+}
+function createContext$1(options = {}) {
+  const {
+    name,
+    strict = true,
+    hookName = "useContext",
+    providerName = "Provider",
+    errorMessage,
+    defaultValue
+  } = options;
+  const Context = reactExports.createContext(defaultValue);
+  Context.displayName = name;
+  function useContext() {
+    var _a4;
+    const context = reactExports.useContext(Context);
+    if (!context && strict) {
+      const error = new Error(
+        errorMessage != null ? errorMessage : getErrorMessage(hookName, providerName)
+      );
+      error.name = "ContextError";
+      (_a4 = Error.captureStackTrace) == null ? void 0 : _a4.call(Error, error, useContext);
+      throw error;
+    }
+    return context;
+  }
+  return [Context.Provider, useContext, Context];
+}
+function useTheme() {
+  const theme2 = reactExports.useContext(
+    ThemeContext
+  );
+  if (!theme2) {
+    throw Error(
+      "useTheme: `theme` is undefined. Seems you forgot to wrap your app in `<ChakraProvider />` or `<ThemeProvider />`"
+    );
+  }
+  return theme2;
+}
 var ColorModeContext = reactExports.createContext({});
 ColorModeContext.displayName = "ColorModeContext";
 function useColorMode() {
@@ -1575,6 +1641,12 @@ function ColorModeScript(props = {}) {
     }
   );
 }
+function useChakra() {
+  const colorModeResult = useColorMode();
+  const theme2 = useTheme();
+  return { ...colorModeResult, theme: theme2 };
+}
+var cx = (...classNames) => classNames.filter(Boolean).join(" ");
 function isObject(value) {
   const type = typeof value;
   return value != null && (type === "object" || type === "function") && !Array.isArray(value);
@@ -1583,6 +1655,7 @@ function runIfFn$2(valueOrFn, ...args) {
   return isFunction$3(valueOrFn) ? valueOrFn(...args) : valueOrFn;
 }
 var isFunction$3 = (value) => typeof value === "function";
+var dataAttr = (condition) => condition ? "" : void 0;
 var lodash_mergewith = { exports: {} };
 lodash_mergewith.exports;
 (function(module, exports) {
@@ -3724,6 +3797,15 @@ function createThemeVars(flatTokens, options) {
     cssMap
   };
 }
+function omit$1(object, keysToOmit = []) {
+  const clone = Object.assign({}, object);
+  for (const key of keysToOmit) {
+    if (key in clone) {
+      delete clone[key];
+    }
+  }
+  return clone;
+}
 function pick(object, keysToPick) {
   const result = {};
   for (const key of keysToPick) {
@@ -3870,8 +3952,9 @@ var systemProps = mergeWith(
   transition$1
 );
 Object.assign({}, space, layout, flexbox, grid, position);
-[...Object.keys(systemProps), ...pseudoPropNames];
-({ ...systemProps, ...pseudoSelectors });
+var propNames = [...Object.keys(systemProps), ...pseudoPropNames];
+var styleProps = { ...systemProps, ...pseudoSelectors };
+var isStyleProp = (prop) => prop in styleProps;
 var expandResponsive = (styles2) => (theme2) => {
   if (!theme2.__breakpoints)
     return styles2;
@@ -4030,6 +4113,77 @@ function createMultiStyleConfigHelpers(parts) {
       return { parts, ...config2 };
     }
   };
+}
+function normalize2(value, toArray) {
+  if (Array.isArray(value))
+    return value;
+  if (isObject(value))
+    return toArray(value);
+  if (value != null)
+    return [value];
+}
+function getNextIndex(values, i) {
+  for (let j = i + 1; j < values.length; j++) {
+    if (values[j] != null)
+      return j;
+  }
+  return -1;
+}
+function createResolver(theme2) {
+  const breakpointUtil = theme2.__breakpoints;
+  return function resolver(config2, prop, value, props) {
+    var _a4, _b3;
+    if (!breakpointUtil)
+      return;
+    const result = {};
+    const normalized = normalize2(value, breakpointUtil.toArrayValue);
+    if (!normalized)
+      return result;
+    const len = normalized.length;
+    const isSingle = len === 1;
+    const isMultipart = !!config2.parts;
+    for (let i = 0; i < len; i++) {
+      const key = breakpointUtil.details[i];
+      const nextKey = breakpointUtil.details[getNextIndex(normalized, i)];
+      const query = toMediaQueryString(key.minW, nextKey == null ? void 0 : nextKey._minW);
+      const styles2 = runIfFn$2((_a4 = config2[prop]) == null ? void 0 : _a4[normalized[i]], props);
+      if (!styles2)
+        continue;
+      if (isMultipart) {
+        (_b3 = config2.parts) == null ? void 0 : _b3.forEach((part) => {
+          mergeWith(result, {
+            [part]: isSingle ? styles2[part] : { [query]: styles2[part] }
+          });
+        });
+        continue;
+      }
+      if (!isMultipart) {
+        if (isSingle)
+          mergeWith(result, styles2);
+        else
+          result[query] = styles2;
+        continue;
+      }
+      result[query] = styles2;
+    }
+    return result;
+  };
+}
+function resolveStyleConfig(config2) {
+  return (props) => {
+    var _a4;
+    const { variant, size: size2, theme: theme2 } = props;
+    const recipe = createResolver(theme2);
+    return mergeWith(
+      {},
+      runIfFn$2((_a4 = config2.baseStyle) != null ? _a4 : {}, props),
+      recipe(config2, "sizes", size2, props),
+      recipe(config2, "variants", variant, props)
+    );
+  };
+}
+function omitThemingProps(props) {
+  return omit$1(props, ["styleConfig", "size", "variant", "colorScheme"]);
 }
 var requiredChakraThemeKeys = [
   "borders",
@@ -5985,9 +6139,9 @@ var inputTheme = defineMultiStyleConfig$k({
     variant: "outline"
   }
 });
-var _a$2;
+var _a$3;
 var baseStyle$y = defineStyle({
-  ...(_a$2 = inputTheme.baseStyle) == null ? void 0 : _a$2.field,
+  ...(_a$3 = inputTheme.baseStyle) == null ? void 0 : _a$3.field,
   paddingY: "2",
   minHeight: "20",
   lineHeight: "short",
@@ -6264,9 +6418,9 @@ var radioTheme = defineMultiStyleConfig$h({
 });
 var { defineMultiStyleConfig: defineMultiStyleConfig$g, definePartsStyle: definePartsStyle$g } = createMultiStyleConfigHelpers(selectAnatomy.keys);
 var $bg$b = cssVar$1("select-bg");
-var _a$1;
+var _a$2;
 var baseStyleField$1 = defineStyle({
-  ...(_a$1 = inputTheme.baseStyle) == null ? void 0 : _a$1.field,
+  ...(_a$2 = inputTheme.baseStyle) == null ? void 0 : _a$2.field,
   appearance: "none",
   paddingBottom: "1px",
   lineHeight: "normal",
@@ -6912,9 +7066,9 @@ var numberInputTheme = defineMultiStyleConfig$a({
   variants: inputTheme.variants,
   defaultProps: inputTheme.defaultProps
 });
-var _a;
+var _a$1;
 var baseStyle$h = defineStyle({
-  ...(_a = inputTheme.baseStyle) == null ? void 0 : _a.field,
+  ...(_a$1 = inputTheme.baseStyle) == null ? void 0 : _a$1.field,
   textAlign: "center"
 });
 var sizes$6 = {
@@ -8019,6 +8173,15 @@ function mergeThemeCustomizer(source, override, key, object) {
   }
   return void 0;
 }
+function omit(object, keys2) {
+  const result = {};
+  Object.keys(object).forEach((key) => {
+    if (keys2.includes(key))
+      return;
+    result[key] = object[key];
+  });
+  return result;
+}
 function get(obj, path, fallback, index) {
   const key = typeof path === "string" ? path.split(".") : [path];
   for (index = 0; index < key.length; index += 1) {
@@ -8048,11 +8211,512 @@ var memoize = (fn) => {
   return memoizedFn;
 };
 var memoizedGet = memoize(get);
+function objectFilter(object, fn) {
+  const result = {};
+  Object.keys(object).forEach((key) => {
+    const value = object[key];
+    const shouldPass = fn(value, key, object);
+    if (shouldPass) {
+      result[key] = value;
+    }
+  });
+  return result;
+}
+var filterUndefined = (object) => objectFilter(object, (val) => val !== null && val !== void 0);
 function isFunction(value) {
   return typeof value === "function";
 }
 function runIfFn(valueOrFn, ...args) {
   return isFunction(valueOrFn) ? valueOrFn(...args) : valueOrFn;
+}
+var hasElementType = typeof Element !== "undefined";
+var hasMap = typeof Map === "function";
+var hasSet = typeof Set === "function";
+var hasArrayBuffer = typeof ArrayBuffer === "function" && !!ArrayBuffer.isView;
+function equal(a, b2) {
+  if (a === b2)
+    return true;
+  if (a && b2 && typeof a == "object" && typeof b2 == "object") {
+    if (a.constructor !== b2.constructor)
+      return false;
+    var length2, i, keys2;
+    if (Array.isArray(a)) {
+      length2 = a.length;
+      if (length2 != b2.length)
+        return false;
+      for (i = length2; i-- !== 0; )
+        if (!equal(a[i], b2[i]))
+          return false;
+      return true;
+    }
+    var it;
+    if (hasMap && a instanceof Map && b2 instanceof Map) {
+      if (a.size !== b2.size)
+        return false;
+      it = a.entries();
+      while (!(i = it.next()).done)
+        if (!b2.has(i.value[0]))
+          return false;
+      it = a.entries();
+      while (!(i = it.next()).done)
+        if (!equal(i.value[1], b2.get(i.value[0])))
+          return false;
+      return true;
+    }
+    if (hasSet && a instanceof Set && b2 instanceof Set) {
+      if (a.size !== b2.size)
+        return false;
+      it = a.entries();
+      while (!(i = it.next()).done)
+        if (!b2.has(i.value[0]))
+          return false;
+      return true;
+    }
+    if (hasArrayBuffer && ArrayBuffer.isView(a) && ArrayBuffer.isView(b2)) {
+      length2 = a.length;
+      if (length2 != b2.length)
+        return false;
+      for (i = length2; i-- !== 0; )
+        if (a[i] !== b2[i])
+          return false;
+      return true;
+    }
+    if (a.constructor === RegExp)
+      return a.source === b2.source && a.flags === b2.flags;
+    if (a.valueOf !== Object.prototype.valueOf && typeof a.valueOf === "function" && typeof b2.valueOf === "function")
+      return a.valueOf() === b2.valueOf();
+    if (a.toString !== Object.prototype.toString && typeof a.toString === "function" && typeof b2.toString === "function")
+      return a.toString() === b2.toString();
+    keys2 = Object.keys(a);
+    length2 = keys2.length;
+    if (length2 !== Object.keys(b2).length)
+      return false;
+    for (i = length2; i-- !== 0; )
+      if (!Object.prototype.hasOwnProperty.call(b2, keys2[i]))
+        return false;
+    if (hasElementType && a instanceof Element)
+      return false;
+    for (i = length2; i-- !== 0; ) {
+      if ((keys2[i] === "_owner" || keys2[i] === "__v" || keys2[i] === "__o") && a.$$typeof) {
+        continue;
+      }
+      if (!equal(a[keys2[i]], b2[keys2[i]]))
+        return false;
+    }
+    return true;
+  }
+  return a !== a && b2 !== b2;
+}
+var reactFastCompare = function isEqual(a, b2) {
+  try {
+    return equal(a, b2);
+  } catch (error) {
+    if ((error.message || "").match(/stack|recursion/i)) {
+      console.warn("react-fast-compare cannot handle circular refs");
+      return false;
+    }
+    throw error;
+  }
+};
+const isEqual2 = /* @__PURE__ */ getDefaultExportFromCjs(reactFastCompare);
+function useStyleConfigImpl(themeKey, props = {}) {
+  var _a4;
+  const { styleConfig: styleConfigProp, ...rest } = props;
+  const { theme: theme2, colorMode } = useChakra();
+  const themeStyleConfig = themeKey ? memoizedGet(theme2, `components.${themeKey}`) : void 0;
+  const styleConfig = styleConfigProp || themeStyleConfig;
+  const mergedProps = mergeWith(
+    { theme: theme2, colorMode },
+    (_a4 = styleConfig == null ? void 0 : styleConfig.defaultProps) != null ? _a4 : {},
+    filterUndefined(omit(rest, ["children"]))
+  );
+  const stylesRef = reactExports.useRef({});
+  if (styleConfig) {
+    const getStyles = resolveStyleConfig(styleConfig);
+    const styles2 = getStyles(mergedProps);
+    const isStyleEqual = isEqual2(stylesRef.current, styles2);
+    if (!isStyleEqual) {
+      stylesRef.current = styles2;
+    }
+  }
+  return stylesRef.current;
+}
+function useStyleConfig(themeKey, props = {}) {
+  return useStyleConfigImpl(themeKey, props);
+}
+var allPropNames = /* @__PURE__ */ new Set([
+  ...propNames,
+  "textStyle",
+  "layerStyle",
+  "apply",
+  "noOfLines",
+  "focusBorderColor",
+  "errorBorderColor",
+  "as",
+  "__css",
+  "css",
+  "sx"
+]);
+var validHTMLProps = /* @__PURE__ */ new Set([
+  "htmlWidth",
+  "htmlHeight",
+  "htmlSize",
+  "htmlTranslate"
+]);
+function shouldForwardProp(prop) {
+  return validHTMLProps.has(prop) || !allPropNames.has(prop);
+}
+function assignAfter(target, ...sources) {
+  if (target == null) {
+    throw new TypeError("Cannot convert undefined or null to object");
+  }
+  const result = { ...target };
+  for (const nextSource of sources) {
+    if (nextSource == null)
+      continue;
+    for (const nextKey in nextSource) {
+      if (!Object.prototype.hasOwnProperty.call(nextSource, nextKey))
+        continue;
+      if (nextKey in result)
+        delete result[nextKey];
+      result[nextKey] = nextSource[nextKey];
+    }
+  }
+  return result;
+}
+var reactPropsRegex = /^((children|dangerouslySetInnerHTML|key|ref|autoFocus|defaultValue|defaultChecked|innerHTML|suppressContentEditableWarning|suppressHydrationWarning|valueLink|abbr|accept|acceptCharset|accessKey|action|allow|allowUserMedia|allowPaymentRequest|allowFullScreen|allowTransparency|alt|async|autoComplete|autoPlay|capture|cellPadding|cellSpacing|challenge|charSet|checked|cite|classID|className|cols|colSpan|content|contentEditable|contextMenu|controls|controlsList|coords|crossOrigin|data|dateTime|decoding|default|defer|dir|disabled|disablePictureInPicture|disableRemotePlayback|download|draggable|encType|enterKeyHint|form|formAction|formEncType|formMethod|formNoValidate|formTarget|frameBorder|headers|height|hidden|high|href|hrefLang|htmlFor|httpEquiv|id|inputMode|integrity|is|keyParams|keyType|kind|label|lang|list|loading|loop|low|marginHeight|marginWidth|max|maxLength|media|mediaGroup|method|min|minLength|multiple|muted|name|nonce|noValidate|open|optimum|pattern|placeholder|playsInline|poster|preload|profile|radioGroup|readOnly|referrerPolicy|rel|required|reversed|role|rows|rowSpan|sandbox|scope|scoped|scrolling|seamless|selected|shape|size|sizes|slot|span|spellCheck|src|srcDoc|srcLang|srcSet|start|step|style|summary|tabIndex|target|title|translate|type|useMap|value|width|wmode|wrap|about|datatype|inlist|prefix|property|resource|typeof|vocab|autoCapitalize|autoCorrect|autoSave|color|incremental|fallback|inert|itemProp|itemScope|itemType|itemID|itemRef|on|option|results|security|unselectable|accentHeight|accumulate|additive|alignmentBaseline|allowReorder|alphabetic|amplitude|arabicForm|ascent|attributeName|attributeType|autoReverse|azimuth|baseFrequency|baselineShift|baseProfile|bbox|begin|bias|by|calcMode|capHeight|clip|clipPathUnits|clipPath|clipRule|colorInterpolation|colorInterpolationFilters|colorProfile|colorRendering|contentScriptType|contentStyleType|cursor|cx|cy|d|decelerate|descent|diffuseConstant|direction|display|divisor|dominantBaseline|dur|dx|dy|edgeMode|elevation|enableBackground|end|exponent|externalResourcesRequired|fill|fillOpacity|fillRule|filter|filterRes|filterUnits|floodColor|floodOpacity|focusable|fontFamily|fontSize|fontSizeAdjust|fontStretch|fontStyle|fontVariant|fontWeight|format|from|fr|fx|fy|g1|g2|glyphName|glyphOrientationHorizontal|glyphOrientationVertical|glyphRef|gradientTransform|gradientUnits|hanging|horizAdvX|horizOriginX|ideographic|imageRendering|in|in2|intercept|k|k1|k2|k3|k4|kernelMatrix|kernelUnitLength|kerning|keyPoints|keySplines|keyTimes|lengthAdjust|letterSpacing|lightingColor|limitingConeAngle|local|markerEnd|markerMid|markerStart|markerHeight|markerUnits|markerWidth|mask|maskContentUnits|maskUnits|mathematical|mode|numOctaves|offset|opacity|operator|order|orient|orientation|origin|overflow|overlinePosition|overlineThickness|panose1|paintOrder|pathLength|patternContentUnits|patternTransform|patternUnits|pointerEvents|points|pointsAtX|pointsAtY|pointsAtZ|preserveAlpha|preserveAspectRatio|primitiveUnits|r|radius|refX|refY|renderingIntent|repeatCount|repeatDur|requiredExtensions|requiredFeatures|restart|result|rotate|rx|ry|scale|seed|shapeRendering|slope|spacing|specularConstant|specularExponent|speed|spreadMethod|startOffset|stdDeviation|stemh|stemv|stitchTiles|stopColor|stopOpacity|strikethroughPosition|strikethroughThickness|string|stroke|strokeDasharray|strokeDashoffset|strokeLinecap|strokeLinejoin|strokeMiterlimit|strokeOpacity|strokeWidth|surfaceScale|systemLanguage|tableValues|targetX|targetY|textAnchor|textDecoration|textRendering|textLength|to|transform|u1|u2|underlinePosition|underlineThickness|unicode|unicodeBidi|unicodeRange|unitsPerEm|vAlphabetic|vHanging|vIdeographic|vMathematical|values|vectorEffect|version|vertAdvY|vertOriginX|vertOriginY|viewBox|viewTarget|visibility|widths|wordSpacing|writingMode|x|xHeight|x1|x2|xChannelSelector|xlinkActuate|xlinkArcrole|xlinkHref|xlinkRole|xlinkShow|xlinkTitle|xlinkType|xmlBase|xmlns|xmlnsXlink|xmlLang|xmlSpace|y|y1|y2|yChannelSelector|z|zoomAndPan|for|class|autofocus)|(([Dd][Aa][Tt][Aa]|[Aa][Rr][Ii][Aa]|x)-.*))$/;
+var isPropValid = /* @__PURE__ */ memoize$2(
+  function(prop) {
+    return reactPropsRegex.test(prop) || prop.charCodeAt(0) === 111 && prop.charCodeAt(1) === 110 && prop.charCodeAt(2) < 91;
+  }
+  /* Z+1 */
+);
+var testOmitPropsOnStringTag = isPropValid;
+var testOmitPropsOnComponent = function testOmitPropsOnComponent2(key) {
+  return key !== "theme";
+};
+var getDefaultShouldForwardProp = function getDefaultShouldForwardProp2(tag) {
+  return typeof tag === "string" && // 96 is one less than the char code
+  // for "a" so this is checking that
+  // it's a lowercase character
+  tag.charCodeAt(0) > 96 ? testOmitPropsOnStringTag : testOmitPropsOnComponent;
+};
+var composeShouldForwardProps = function composeShouldForwardProps2(tag, options, isReal) {
+  var shouldForwardProp2;
+  if (options) {
+    var optionsShouldForwardProp = options.shouldForwardProp;
+    shouldForwardProp2 = tag.__emotion_forwardProp && optionsShouldForwardProp ? function(propName) {
+      return tag.__emotion_forwardProp(propName) && optionsShouldForwardProp(propName);
+    } : optionsShouldForwardProp;
+  }
+  if (typeof shouldForwardProp2 !== "function" && isReal) {
+    shouldForwardProp2 = tag.__emotion_forwardProp;
+  }
+  return shouldForwardProp2;
+};
+var Insertion = function Insertion2(_ref) {
+  var cache = _ref.cache, serialized = _ref.serialized, isStringTag = _ref.isStringTag;
+  registerStyles(cache, serialized, isStringTag);
+  useInsertionEffectAlwaysWithSyncFallback(function() {
+    return insertStyles(cache, serialized, isStringTag);
+  });
+  return null;
+};
+var createStyled = function createStyled2(tag, options) {
+  var isReal = tag.__emotion_real === tag;
+  var baseTag = isReal && tag.__emotion_base || tag;
+  var identifierName;
+  var targetClassName;
+  if (options !== void 0) {
+    identifierName = options.label;
+    targetClassName = options.target;
+  }
+  var shouldForwardProp2 = composeShouldForwardProps(tag, options, isReal);
+  var defaultShouldForwardProp = shouldForwardProp2 || getDefaultShouldForwardProp(baseTag);
+  var shouldUseAs = !defaultShouldForwardProp("as");
+  return function() {
+    var args = arguments;
+    var styles2 = isReal && tag.__emotion_styles !== void 0 ? tag.__emotion_styles.slice(0) : [];
+    if (identifierName !== void 0) {
+      styles2.push("label:" + identifierName + ";");
+    }
+    if (args[0] == null || args[0].raw === void 0) {
+      styles2.push.apply(styles2, args);
+    } else {
+      styles2.push(args[0][0]);
+      var len = args.length;
+      var i = 1;
+      for (; i < len; i++) {
+        styles2.push(args[i], args[0][i]);
+      }
+    }
+    var Styled = withEmotionCache(function(props, cache, ref) {
+      var FinalTag = shouldUseAs && props.as || baseTag;
+      var className = "";
+      var classInterpolations = [];
+      var mergedProps = props;
+      if (props.theme == null) {
+        mergedProps = {};
+        for (var key in props) {
+          mergedProps[key] = props[key];
+        }
+        mergedProps.theme = reactExports.useContext(ThemeContext);
+      }
+      if (typeof props.className === "string") {
+        className = getRegisteredStyles(cache.registered, classInterpolations, props.className);
+      } else if (props.className != null) {
+        className = props.className + " ";
+      }
+      var serialized = serializeStyles(styles2.concat(classInterpolations), cache.registered, mergedProps);
+      className += cache.key + "-" + serialized.name;
+      if (targetClassName !== void 0) {
+        className += " " + targetClassName;
+      }
+      var finalShouldForwardProp = shouldUseAs && shouldForwardProp2 === void 0 ? getDefaultShouldForwardProp(FinalTag) : defaultShouldForwardProp;
+      var newProps = {};
+      for (var _key in props) {
+        if (shouldUseAs && _key === "as")
+          continue;
+        if (
+          // $FlowFixMe
+          finalShouldForwardProp(_key)
+        ) {
+          newProps[_key] = props[_key];
+        }
+      }
+      newProps.className = className;
+      newProps.ref = ref;
+      return /* @__PURE__ */ reactExports.createElement(reactExports.Fragment, null, /* @__PURE__ */ reactExports.createElement(Insertion, {
+        cache,
+        serialized,
+        isStringTag: typeof FinalTag === "string"
+      }), /* @__PURE__ */ reactExports.createElement(FinalTag, newProps));
+    });
+    Styled.displayName = identifierName !== void 0 ? identifierName : "Styled(" + (typeof baseTag === "string" ? baseTag : baseTag.displayName || baseTag.name || "Component") + ")";
+    Styled.defaultProps = tag.defaultProps;
+    Styled.__emotion_real = Styled;
+    Styled.__emotion_base = baseTag;
+    Styled.__emotion_styles = styles2;
+    Styled.__emotion_forwardProp = shouldForwardProp2;
+    Object.defineProperty(Styled, "toString", {
+      value: function value() {
+        if (targetClassName === void 0 && false) {
+          return "NO_COMPONENT_SELECTOR";
+        }
+        return "." + targetClassName;
+      }
+    });
+    Styled.withComponent = function(nextTag, nextOptions) {
+      return createStyled2(nextTag, _extends({}, options, nextOptions, {
+        shouldForwardProp: composeShouldForwardProps(Styled, nextOptions, true)
+      })).apply(void 0, styles2);
+    };
+    return Styled;
+  };
+};
+var tags = [
+  "a",
+  "abbr",
+  "address",
+  "area",
+  "article",
+  "aside",
+  "audio",
+  "b",
+  "base",
+  "bdi",
+  "bdo",
+  "big",
+  "blockquote",
+  "body",
+  "br",
+  "button",
+  "canvas",
+  "caption",
+  "cite",
+  "code",
+  "col",
+  "colgroup",
+  "data",
+  "datalist",
+  "dd",
+  "del",
+  "details",
+  "dfn",
+  "dialog",
+  "div",
+  "dl",
+  "dt",
+  "em",
+  "embed",
+  "fieldset",
+  "figcaption",
+  "figure",
+  "footer",
+  "form",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+  "head",
+  "header",
+  "hgroup",
+  "hr",
+  "html",
+  "i",
+  "iframe",
+  "img",
+  "input",
+  "ins",
+  "kbd",
+  "keygen",
+  "label",
+  "legend",
+  "li",
+  "link",
+  "main",
+  "map",
+  "mark",
+  "marquee",
+  "menu",
+  "menuitem",
+  "meta",
+  "meter",
+  "nav",
+  "noscript",
+  "object",
+  "ol",
+  "optgroup",
+  "option",
+  "output",
+  "p",
+  "param",
+  "picture",
+  "pre",
+  "progress",
+  "q",
+  "rp",
+  "rt",
+  "ruby",
+  "s",
+  "samp",
+  "script",
+  "section",
+  "select",
+  "small",
+  "source",
+  "span",
+  "strong",
+  "style",
+  "sub",
+  "summary",
+  "sup",
+  "table",
+  "tbody",
+  "td",
+  "textarea",
+  "tfoot",
+  "th",
+  "thead",
+  "time",
+  "title",
+  "tr",
+  "track",
+  "u",
+  "ul",
+  "var",
+  "video",
+  "wbr",
+  // SVG
+  "circle",
+  "clipPath",
+  "defs",
+  "ellipse",
+  "foreignObject",
+  "g",
+  "image",
+  "line",
+  "linearGradient",
+  "mask",
+  "path",
+  "pattern",
+  "polygon",
+  "polyline",
+  "radialGradient",
+  "rect",
+  "stop",
+  "svg",
+  "text",
+  "tspan"
+];
+var newStyled = createStyled.bind();
+tags.forEach(function(tagName) {
+  newStyled[tagName] = newStyled(tagName);
+});
+var _a;
+var emotion_styled = (_a = newStyled.default) != null ? _a : newStyled;
+var toCSSObject = ({ baseStyle: baseStyle2 }) => (props) => {
+  const { theme: theme2, css: cssProp, __css, sx, ...rest } = props;
+  const styleProps2 = objectFilter(rest, (_, prop) => isStyleProp(prop));
+  const finalBaseStyle = runIfFn(baseStyle2, props);
+  const finalStyles = assignAfter(
+    {},
+    __css,
+    finalBaseStyle,
+    filterUndefined(styleProps2),
+    sx
+  );
+  const computedCSS = css(finalStyles)(props.theme);
+  return cssProp ? [computedCSS, cssProp] : computedCSS;
+};
+function styled(component, options) {
+  const { baseStyle: baseStyle2, ...styledOptions } = options != null ? options : {};
+  if (!styledOptions.shouldForwardProp) {
+    styledOptions.shouldForwardProp = shouldForwardProp;
+  }
+  const styleObject = toCSSObject({ baseStyle: baseStyle2 });
+  const Component = emotion_styled(
+    component,
+    styledOptions
+  )(styleObject);
+  const chakraComponent = React$1.forwardRef(function ChakraComponent(props, ref) {
+    const { colorMode, forced } = useColorMode();
+    return React$1.createElement(Component, {
+      ref,
+      "data-theme": forced ? colorMode : void 0,
+      ...props
+    });
+  });
+  return chakraComponent;
+}
+function factory() {
+  const cache = /* @__PURE__ */ new Map();
+  return new Proxy(styled, {
+    /**
+     * @example
+     * const Div = chakra("div")
+     * const WithChakra = chakra(AnotherComponent)
+     */
+    apply(target, thisArg, argArray) {
+      return styled(...argArray);
+    },
+    /**
+     * @example
+     * <chakra.div />
+     */
+    get(_, element) {
+      if (!cache.has(element)) {
+        cache.set(element, styled(element));
+      }
+      return cache.get(element);
+    }
+  });
+}
+var chakra = factory();
+function forwardRef(component) {
+  return reactExports.forwardRef(component);
 }
 function createContext(options = {}) {
   const {
@@ -8111,6 +8775,232 @@ function GlobalStyle() {
     }
   );
 }
+var spin = keyframes({
+  "0%": {
+    transform: "rotate(0deg)"
+  },
+  "100%": {
+    transform: "rotate(360deg)"
+  }
+});
+var Spinner = forwardRef((props, ref) => {
+  const styles2 = useStyleConfig("Spinner", props);
+  const {
+    label = "Loading...",
+    thickness = "2px",
+    speed = "0.45s",
+    emptyColor = "transparent",
+    className,
+    ...rest
+  } = omitThemingProps(props);
+  const _className = cx("chakra-spinner", className);
+  const spinnerStyles = {
+    display: "inline-block",
+    borderColor: "currentColor",
+    borderStyle: "solid",
+    borderRadius: "99999px",
+    borderWidth: thickness,
+    borderBottomColor: emptyColor,
+    borderLeftColor: emptyColor,
+    animation: `${spin} ${speed} linear infinite`,
+    ...styles2
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    chakra.div,
+    {
+      ref,
+      __css: spinnerStyles,
+      className: _className,
+      ...rest,
+      children: label && /* @__PURE__ */ jsxRuntimeExports.jsx(chakra.span, { srOnly: true, children: label })
+    }
+  );
+});
+Spinner.displayName = "Spinner";
+function assignRef(ref, value) {
+  if (ref == null)
+    return;
+  if (typeof ref === "function") {
+    ref(value);
+    return;
+  }
+  try {
+    ref.current = value;
+  } catch (error) {
+    throw new Error(`Cannot assign value '${value}' to ref '${ref}'`);
+  }
+}
+function mergeRefs(...refs) {
+  return (node2) => {
+    refs.forEach((ref) => {
+      assignRef(ref, node2);
+    });
+  };
+}
+function useMergeRefs(...refs) {
+  return reactExports.useMemo(() => mergeRefs(...refs), refs);
+}
+var [ButtonGroupProvider, useButtonGroup] = createContext$1({
+  strict: false,
+  name: "ButtonGroupContext"
+});
+function useButtonType(value) {
+  const [isButton, setIsButton] = reactExports.useState(!value);
+  const refCallback = reactExports.useCallback((node2) => {
+    if (!node2)
+      return;
+    setIsButton(node2.tagName === "BUTTON");
+  }, []);
+  const type = isButton ? "button" : void 0;
+  return { ref: refCallback, type };
+}
+function ButtonIcon(props) {
+  const { children, className, ...rest } = props;
+  const _children = reactExports.isValidElement(children) ? reactExports.cloneElement(children, {
+    "aria-hidden": true,
+    focusable: false
+  }) : children;
+  const _className = cx("chakra-button__icon", className);
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    chakra.span,
+    {
+      display: "inline-flex",
+      alignSelf: "center",
+      flexShrink: 0,
+      ...rest,
+      className: _className,
+      children: _children
+    }
+  );
+}
+ButtonIcon.displayName = "ButtonIcon";
+function ButtonSpinner(props) {
+  const {
+    label,
+    placement,
+    spacing: spacing2 = "0.5rem",
+    children = /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { color: "currentColor", width: "1em", height: "1em" }),
+    className,
+    __css,
+    ...rest
+  } = props;
+  const _className = cx("chakra-button__spinner", className);
+  const marginProp = placement === "start" ? "marginEnd" : "marginStart";
+  const spinnerStyles = reactExports.useMemo(
+    () => ({
+      display: "flex",
+      alignItems: "center",
+      position: label ? "relative" : "absolute",
+      [marginProp]: label ? spacing2 : 0,
+      fontSize: "1em",
+      lineHeight: "normal",
+      ...__css
+    }),
+    [__css, label, marginProp, spacing2]
+  );
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(chakra.div, { className: _className, ...rest, __css: spinnerStyles, children });
+}
+ButtonSpinner.displayName = "ButtonSpinner";
+var Button = forwardRef((props, ref) => {
+  const group = useButtonGroup();
+  const styles2 = useStyleConfig("Button", { ...group, ...props });
+  const {
+    isDisabled = group == null ? void 0 : group.isDisabled,
+    isLoading,
+    isActive,
+    children,
+    leftIcon,
+    rightIcon,
+    loadingText,
+    iconSpacing: iconSpacing2 = "0.5rem",
+    type,
+    spinner,
+    spinnerPlacement = "start",
+    className,
+    as,
+    ...rest
+  } = omitThemingProps(props);
+  const buttonStyles = reactExports.useMemo(() => {
+    const _focus = { ...styles2 == null ? void 0 : styles2["_focus"], zIndex: 1 };
+    return {
+      display: "inline-flex",
+      appearance: "none",
+      alignItems: "center",
+      justifyContent: "center",
+      userSelect: "none",
+      position: "relative",
+      whiteSpace: "nowrap",
+      verticalAlign: "middle",
+      outline: "none",
+      ...styles2,
+      ...!!group && { _focus }
+    };
+  }, [styles2, group]);
+  const { ref: _ref, type: defaultType } = useButtonType(as);
+  const contentProps = { rightIcon, leftIcon, iconSpacing: iconSpacing2, children };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    chakra.button,
+    {
+      ref: useMergeRefs(ref, _ref),
+      as,
+      type: type != null ? type : defaultType,
+      "data-active": dataAttr(isActive),
+      "data-loading": dataAttr(isLoading),
+      __css: buttonStyles,
+      className: cx("chakra-button", className),
+      ...rest,
+      disabled: isDisabled || isLoading,
+      children: [
+        isLoading && spinnerPlacement === "start" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+          ButtonSpinner,
+          {
+            className: "chakra-button__spinner--start",
+            label: loadingText,
+            placement: "start",
+            spacing: iconSpacing2,
+            children: spinner
+          }
+        ),
+        isLoading ? loadingText || /* @__PURE__ */ jsxRuntimeExports.jsx(chakra.span, { opacity: 0, children: /* @__PURE__ */ jsxRuntimeExports.jsx(ButtonContent, { ...contentProps }) }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ButtonContent, { ...contentProps }),
+        isLoading && spinnerPlacement === "end" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+          ButtonSpinner,
+          {
+            className: "chakra-button__spinner--end",
+            label: loadingText,
+            placement: "end",
+            spacing: iconSpacing2,
+            children: spinner
+          }
+        )
+      ]
+    }
+  );
+});
+Button.displayName = "Button";
+function ButtonContent(props) {
+  const { leftIcon, rightIcon, children, iconSpacing: iconSpacing2 } = props;
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    leftIcon && /* @__PURE__ */ jsxRuntimeExports.jsx(ButtonIcon, { marginEnd: iconSpacing2, children: leftIcon }),
+    children,
+    rightIcon && /* @__PURE__ */ jsxRuntimeExports.jsx(ButtonIcon, { marginStart: iconSpacing2, children: rightIcon })
+  ] });
+}
+function Badge({ url }) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { children: "Trigger" });
+}
+function App({ anchorEls: anchorEls2 }) {
+  return anchorEls2.map((anchorEl) => {
+    const containerDiv = document.createElement("div");
+    containerDiv.style.display = "inline-block";
+    anchorEl.parentNode.insertBefore(containerDiv, anchorEl);
+    containerDiv.appendChild(anchorEl);
+    const newDiv = document.createElement("div");
+    newDiv.style.display = "inline-block";
+    anchorEl.after(newDiv);
+    return reactDomExports.createPortal(/* @__PURE__ */ jsxRuntimeExports.jsx(Badge, { url: anchorEl.href }), newDiv);
+  });
+}
+const injectedStyle = "";
 const theme = extendTheme();
 const getCurrentTheme = () => {
   const isDark2 = window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -8170,6 +9060,8 @@ shadowRoot.appendChild(rootIntoShadow);
 const styleElement = document.createElement("style");
 styleElement.innerHTML = injectedStyle;
 shadowRoot.appendChild(styleElement);
+const legalDocumentRegex = /\bagreement\b|\bprivacy policy\b|\bprivacy notice\b|\bcookie policy\b|\bterms and conditions\b|\bterms & conditions\b|\bt&c\b|\bconditions of use\b|\bterms of service\b/i;
+const anchorEls = Array.from(document.getElementsByTagName("a")).filter((anchorEl) => legalDocumentRegex.test(anchorEl.innerText));
 createRoot(rootIntoShadow).render(
-  /* @__PURE__ */ jsxRuntimeExports.jsx(EmotionCacheProvider, { rootId: root.id, children: /* @__PURE__ */ jsxRuntimeExports.jsx(CustomChakraProvider, { shadowRootId: rootIntoShadow.id, children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) }) })
+  /* @__PURE__ */ jsxRuntimeExports.jsx(EmotionCacheProvider, { rootId: root.id, children: /* @__PURE__ */ jsxRuntimeExports.jsx(CustomChakraProvider, { shadowRootId: rootIntoShadow.id, children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, { anchorEls }) }) })
 );

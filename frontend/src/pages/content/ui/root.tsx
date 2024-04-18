@@ -5,6 +5,7 @@ import injectedStyle from './injected.css?inline';
 
 import CustomChakraProvider from '@pages/content/ui/CustomChakraProvider';
 import EmotionCacheProvider from '@pages/content/ui/EmotionCacheProvider';
+import Badge from '@pages/content/ui/Badge';
 
 refreshOnUpdate('pages/content');
 
@@ -24,17 +25,15 @@ const styleElement = document.createElement('style');
 styleElement.innerHTML = injectedStyle;
 shadowRoot.appendChild(styleElement);
 
-/**
- * https://github.com/Jonghakseo/chrome-extension-boilerplate-react-vite/pull/174
- *
- * In the firefox environment, the adoptedStyleSheets bug may prevent contentStyle from being applied properly.
- * Please refer to the PR link above and go back to the contentStyle.css implementation, or raise a PR if you have a better way to improve it.
- */
+
+const legalDocumentRegex = /\bagreement\b|\bprivacy policy\b|\bprivacy notice\b|\bcookie policy\b|\bterms and conditions\b|\bterms & conditions\b|\bt&c\b|\bconditions of use\b|\bterms of service\b/i;
+const anchorEls = Array.from(document.getElementsByTagName('a')).filter((anchorEl) => legalDocumentRegex.test(anchorEl.innerText));
 
 createRoot(rootIntoShadow).render(
    <EmotionCacheProvider rootId={root.id}>
       <CustomChakraProvider shadowRootId={rootIntoShadow.id}>
-         <App />
+         <App anchorEls={anchorEls} />
+         {/* <Badge url="https://www.google.com/" /> */}
       </CustomChakraProvider>
    </EmotionCacheProvider>
 );

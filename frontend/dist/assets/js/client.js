@@ -7566,6 +7566,8 @@ var m = reactDomExports;
 }
 export {
   React$1 as R,
+  React as a,
+  reactDomExports as b,
   createRoot as c,
   jsxRuntimeExports as j,
   reactExports as r

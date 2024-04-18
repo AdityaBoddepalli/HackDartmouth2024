@@ -54,12 +54,6 @@ var __vitePreload = function preload(baseModule, deps, importerUrl) {
   });
 };
 __vitePreload(() => import("../../../assets/js/toggleTheme.js"), true ? __vite__mapDeps([]) : void 0);
-const legalDocumentRegex = /\bagreement\b|\bprivacy policy\b|\bprivacy notice\b|\bcookie policy\b|\bterms and conditions\b|\bterms & conditions\b|\bt&c\b|\bconditions of use\b|\bterms of service\b/i;
-const anchorEls = Array.from(document.getElementsByTagName("a"));
-for (let anchorEl of anchorEls) {
-  if (!legalDocumentRegex.test(anchorEl.innerText))
-    continue;
-}
 function __vite__mapDeps(indexes) {
   if (!__vite__mapDeps.viteFileDeps) {
     __vite__mapDeps.viteFileDeps = []

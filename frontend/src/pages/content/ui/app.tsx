@@ -1,9 +1,19 @@
 import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
-export default function App() {
-  useEffect(() => {
-    console.log('content view loaded');
-  }, []);
+import Badge from '@pages/content/ui/Badge';
 
-  return <div className="">content view</div>;
+export default function App({ anchorEls }: { anchorEls: HTMLAnchorElement[] }) {
+  return anchorEls.map((anchorEl) => {
+    const containerDiv = document.createElement('div');
+    containerDiv.style.display = 'inline-block';
+    anchorEl.parentNode.insertBefore(containerDiv, anchorEl);
+    containerDiv.appendChild(anchorEl);
+
+    const contentDiv = document.createElement('div');
+    contentDiv.style.display = 'inline-block';
+    anchorEl.after(contentDiv);
+
+    return createPortal(<Badge url={anchorEl.href} />, contentDiv);
+  });
 }
