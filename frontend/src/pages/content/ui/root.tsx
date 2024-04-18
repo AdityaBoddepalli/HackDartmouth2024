@@ -1,11 +1,23 @@
 import { createRoot } from 'react-dom/client';
-import App from '@pages/content/ui/app';
+import { createPortal } from "react-dom";
+import Badge from '@pages/content/ui/Badge';
 import refreshOnUpdate from 'virtual:reload-on-update-in-view';
 import injectedStyle from './injected.css?inline';
 
+import { ChakraProvider } from "@chakra-ui/react";
+import { extendTheme } from '@chakra-ui/react';
+import '@fontsource/open-sans';
+import '@fontsource/raleway';
 import CustomChakraProvider from '@pages/content/ui/CustomChakraProvider';
 import EmotionCacheProvider from '@pages/content/ui/EmotionCacheProvider';
 import Badge from '@pages/content/ui/Badge';
+
+const theme = extendTheme({
+   fonts: {
+      heading: `'Open Sans', sans-serif`,
+      body: `'Raleway', sans-serif`,
+   },
+});
 
 refreshOnUpdate('pages/content');
 
@@ -30,10 +42,18 @@ const legalDocumentRegex = /\bagreement\b|\bprivacy policy\b|\bprivacy notice\b|
 const anchorEls = Array.from(document.getElementsByTagName('a')).filter((anchorEl) => legalDocumentRegex.test(anchorEl.innerText));
 
 createRoot(rootIntoShadow).render(
-   <EmotionCacheProvider rootId={root.id}>
-      <CustomChakraProvider shadowRootId={rootIntoShadow.id}>
-         <App anchorEls={anchorEls} />
-         {/* <Badge url="https://www.google.com/" /> */}
-      </CustomChakraProvider>
-   </EmotionCacheProvider>
+   <ChakraProvider theme={theme}>
+      {anchorEls.map((anchorEl) => {
+         const containerDiv = document.createElement('div');
+         containerDiv.style.display = 'inline-block';
+         anchorEl.parentNode.insertBefore(containerDiv, anchorEl);
+         containerDiv.appendChild(anchorEl);
+
+         const contentDiv = document.createElement('div');
+         contentDiv.style.display = 'inline-block';
+         anchorEl.after(contentDiv);
+
+         return createPortal(<Badge url={anchorEl.href} title={anchorEl.innerText} />, contentDiv);
+      })}
+   </ChakraProvider>
 );
