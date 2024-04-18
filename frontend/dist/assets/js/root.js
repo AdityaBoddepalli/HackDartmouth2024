@@ -7252,6 +7252,10 @@ async function getSummary(url, signal) {
       - **Governing Law**: Governed by California law, with some federal and FINRA regulations also applicable.`)
   };
 }
+async function getChatResponse(url, message, signal) {
+  await new Promise((resolve) => setTimeout(resolve, 2e3));
+  return `Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.`;
+}
 var Send = {};
 var interopRequireDefault = { exports: {} };
 (function(module) {
@@ -10293,16 +10297,17 @@ default_1 = Send.default = (0, _createSvgIcon.default)(/* @__PURE__ */ (0, _jsxR
   d: "M2.01 21 23 12 2.01 3 2 10l15 2-15 2z"
 }), "Send");
 function Chat({ url, domainName, title }) {
-  reactExports.useState([]);
-  reactExports.useState(false);
+  const [chats, setChats] = reactExports.useState([]);
+  const [isFetching, setIsFetching] = reactExports.useState(false);
   const [inputText, setInputText] = reactExports.useState("");
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { direction: "column", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(Box, { overflowY: "scroll", flexGrow: "1" }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { direction: "row", alignItems: "center", flexGrow: "0", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Box, { overflowY: "scroll", flex: "1", children: chats.length < 1 ? /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, {}) : chats.map(({ isUser, message }) => {
+    }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Box, { position: "relative", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(
         Textarea,
         {
-          display: "inline-block",
+          display: "block",
           resize: "none",
           value: inputText,
           onChange: (e2) => {
@@ -10311,7 +10316,33 @@ function Chat({ url, domainName, title }) {
           placeholder: `Any questions regarding ${domainName}'s ${title}?`
         }
       ),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(IconButton, { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(default_1, {}) })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        IconButton,
+        {
+          icon: /* @__PURE__ */ jsxRuntimeExports.jsx(default_1, {}),
+          disabled: isFetching,
+          position: "absolute",
+          right: "20",
+          onClick: (e2) => {
+            if (inputText.trim() === "")
+              return;
+            setChats((prev) => [...prev, { isUser: true, message: inputText }]);
+            setInputText("");
+            const controller = new AbortController();
+            setIsFetching(true);
+            getChatResponse(url, chats.at(-1).message, controller.signal).then((response) => {
+              setChats((prev) => [...prev, { isUser: false, message: response }]);
+            }).catch((err) => {
+              console.log("error fetching chat response", err);
+            }).finally(() => {
+              setIsFetching(false);
+            });
+            return () => {
+              controller.abort();
+            };
+          }
+        }
+      )
     ] })
   ] });
 }

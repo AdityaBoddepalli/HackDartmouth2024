@@ -10,7 +10,6 @@ import '@fontsource/open-sans';
 import '@fontsource/raleway';
 import CustomChakraProvider from '@pages/content/ui/CustomChakraProvider';
 import EmotionCacheProvider from '@pages/content/ui/EmotionCacheProvider';
-import Badge from '@pages/content/ui/Badge';
 
 const theme = extendTheme({
    fonts: {

@@ -34,7 +34,7 @@ type MessageProps = {
 };
 
 export default function Chat({ url, domainName, title }: { url: string, domainName: string, title: string }) {
-   const [chats, setChats] = useState<string[]>([]);
+   const [chats, setChats] = useState<{isUser: boolean, message: string}[]>([]);
    const [isFetching, setIsFetching] = useState(false);
    const [inputText, setInputText] = useState("");
 
@@ -44,22 +44,53 @@ export default function Chat({ url, domainName, title }: { url: string, domainNa
    // }, []);
 
    return (
-      <Stack direction="column">
-         <Box overflowY="scroll" flexGrow="1">
-
-         </Box>
-         <Stack direction="row" alignItems="center" flexGrow="0">
+      <Stack>
+         <Stack overflowY="scroll" flex="1" alignItems="center">
+            {chats.length < 1 ? (<></>) : (
+               chats.map(({ isUser, message }) => (
+                  <Stack direction="row">
+                     <Box>
+                        p
+                     </Box>
+                  </Stack>
+               ))
+            )}
+         </Stack>
+         <Box position="relative">
             <Textarea 
-               display="inline-block" 
+               display="block" 
                resize="none" 
                value={inputText} 
                onChange={(e) => { setInputText(e.target.value); }} 
                placeholder={`Any questions regarding ${domainName}'s ${title}?`}
             />
-            {/* <Box display="inline-block" height="80px" border="1px solid rgb(226, 232, 240)"> */}
-               <IconButton icon={<SendIcon />} />
-            {/* </Box> */}
-         </Stack>
+            <IconButton 
+               icon={<SendIcon />}
+               disabled={isFetching}
+               position="absolute"
+               right="20"
+               onClick={(e) => {
+                  if (inputText.trim() === "") return;
+                  setChats((prev) => [...prev, { isUser: true, message: inputText }]);
+                  setInputText("");
+                  const controller = new AbortController();
+                  setIsFetching(true);
+                  getChatResponse(url, chats.at(-1).message, controller.signal)
+                     .then((response) => {
+                        setChats((prev) => [...prev, { isUser: false, message: response }]);
+                     })
+                     .catch((err) => {
+                        console.log("error fetching chat response", err);
+                     })
+                     .finally(() => {
+                        setIsFetching(false);
+                     });
+                  return (() => {
+                     controller.abort();
+                  });
+               }}
+            />
+         </Box>
       </Stack>
    );
 }
