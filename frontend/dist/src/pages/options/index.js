@@ -1,5 +1,6 @@
 import { j as jsxRuntimeExports, c as createRoot } from "../../../assets/js/client.js";
 import { a as addHmrIntoView } from "../../../assets/js/_virtual_reload-on-update-in-view.js";
+import "../../../assets/js/_commonjsHelpers.js";
 const Options = () => {
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "container", children: "Options" });
 };

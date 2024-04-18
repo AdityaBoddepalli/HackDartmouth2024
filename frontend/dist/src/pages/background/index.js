@@ -1,4 +1,4 @@
-var commonjsGlobal = typeof globalThis !== "undefined" ? globalThis : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : {};
+import { c as commonjsGlobal } from "../../../assets/js/_commonjsHelpers.js";
 const LOCAL_RELOAD_SOCKET_PORT = 8081;
 const LOCAL_RELOAD_SOCKET_URL = `ws://localhost:${LOCAL_RELOAD_SOCKET_PORT}`;
 class MessageInterpreter {
@@ -89,7 +89,7 @@ function addHmrIntoScript(watchPath) {
 }
 var browserPolyfill = { exports: {} };
 (function(module, exports) {
-  (function(global2, factory) {
+  (function(global, factory) {
     {
       factory(module);
     }

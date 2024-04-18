@@ -3,6 +3,9 @@ import App from '@pages/content/ui/app';
 import refreshOnUpdate from 'virtual:reload-on-update-in-view';
 import injectedStyle from './injected.css?inline';
 
+import CustomChakraProvider from '@pages/content/ui/CustomChakraProvider';
+import EmotionCacheProvider from '@pages/content/ui/EmotionCacheProvider';
+
 refreshOnUpdate('pages/content');
 
 const root = document.createElement('div');
@@ -28,4 +31,10 @@ shadowRoot.appendChild(styleElement);
  * Please refer to the PR link above and go back to the contentStyle.css implementation, or raise a PR if you have a better way to improve it.
  */
 
-createRoot(rootIntoShadow).render(<App />);
+createRoot(rootIntoShadow).render(
+   <EmotionCacheProvider rootId={root.id}>
+      <CustomChakraProvider shadowRootId={rootIntoShadow.id}>
+         <App />
+      </CustomChakraProvider>
+   </EmotionCacheProvider>
+);

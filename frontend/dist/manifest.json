@@ -6,7 +6,9 @@
   "description": "",
   "permissions": [
     "storage",
-    "sidePanel"
+    "sidePanel",
+    "activeTab",
+    "scripting"
   ],
   "side_panel": {
     "default_path": "src/pages/sidepanel/index.html"
@@ -37,7 +39,7 @@
         "src/pages/contentInjected/index.js"
       ],
       "css": [
-        "assets/css/contentStyle1713400313390.chunk.css"
+        "assets/css/contentStyle1713402963513.chunk.css"
       ]
     },
     {

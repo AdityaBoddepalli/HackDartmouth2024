@@ -2,6 +2,7 @@ import { j as jsxRuntimeExports, c as createRoot } from "../../../assets/js/clie
 import { w as withErrorBoundary, a as withSuspense, u as useStorage, l as logo } from "../../../assets/js/withErrorBoundary.js";
 import { e as exampleThemeStorage } from "../../../assets/js/exampleThemeStorage.js";
 import { a as addHmrIntoView } from "../../../assets/js/_virtual_reload-on-update-in-view.js";
+import "../../../assets/js/_commonjsHelpers.js";
 const Popup = () => {
   const theme = useStorage(exampleThemeStorage);
   return /* @__PURE__ */ jsxRuntimeExports.jsx(
