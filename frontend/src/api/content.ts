@@ -3,7 +3,7 @@ import { Converter } from 'showdown';
 
 export async function getSummary(url: string, signal: AbortSignal) {
    const mdConverter = new Converter();
-   await new Promise((resolve) => setTimeout(resolve, 2000));
+   // await new Promise((resolve) => setTimeout(resolve, 2000));
    return {
       status: 'green',
       summary: mdConverter.makeHtml(`- **Security Responsibility**: Users are responsible for keeping their account access secure.

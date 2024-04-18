@@ -38,7 +38,7 @@ styleElement.innerHTML = injectedStyle;
 shadowRoot.appendChild(styleElement);
 
 
-const legalDocumentRegex = /\bagreement\b|\bprivacy policy\b|\bprivacy notice\b|\bcookie policy\b|\bterms and conditions\b|\bterms & conditions\b|\bt&c\b|\bconditions of use\b|\bterms of service\b/i;
+const legalDocumentRegex = /\bagreement\b|\bprivacy policy\b|\bprivacy notice\b|\bcookie policy\b|\bterms and conditions\b|\bterms & conditions\b|\bterms of use\b|\bt&c\b|\bconditions of use\b|\bterms of service\b/i;
 const anchorEls = Array.from(document.getElementsByTagName('a')).filter((anchorEl) => legalDocumentRegex.test(anchorEl.innerText));
 
 createRoot(rootIntoShadow).render(

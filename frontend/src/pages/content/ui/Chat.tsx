@@ -8,9 +8,11 @@ import {
    Input,
    Stack,
    Text,
-   Textarea
+   Textarea,
+   IconButton
 } from "@chakra-ui/react";
 import { getChatResponse } from "../../../api/content";
+import SendIcon from '@mui/icons-material/Send';
 
 type MessageProps = {
    text: string;
@@ -31,7 +33,7 @@ type MessageProps = {
    );
 };
 
-export default function Chat({ url }: { url: string }) {
+export default function Chat({ url, domainName, title }: { url: string, domainName: string, title: string }) {
    const [chats, setChats] = useState<string[]>([]);
    const [isFetching, setIsFetching] = useState(false);
    const [inputText, setInputText] = useState("");
@@ -42,13 +44,22 @@ export default function Chat({ url }: { url: string }) {
    // }, []);
 
    return (
-      <Stack>
-         <Box overflowY="scroll">
+      <Stack direction="column">
+         <Box overflowY="scroll" flexGrow="1">
 
          </Box>
-         <Box>
-            <Textarea  />
-         </Box>
+         <Stack direction="row" alignItems="center" flexGrow="0">
+            <Textarea 
+               display="inline-block" 
+               resize="none" 
+               value={inputText} 
+               onChange={(e) => { setInputText(e.target.value); }} 
+               placeholder={`Any questions regarding ${domainName}'s ${title}?`}
+            />
+            {/* <Box display="inline-block" height="80px" border="1px solid rgb(226, 232, 240)"> */}
+               <IconButton icon={<SendIcon />} />
+            {/* </Box> */}
+         </Stack>
       </Stack>
    );
 }

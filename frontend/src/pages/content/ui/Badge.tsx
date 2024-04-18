@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
    Popover,
    PopoverTrigger,
@@ -24,6 +24,11 @@ import Chat from './Chat';
 
 export default function Badge({ url, title }: { url: string, title: string }) {
    const [data, setData] = useState<{status: string, summary: string} | null>(null);
+   const domainName = useMemo(() => {
+      let domain: string | string[] = url.match(/^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n]+)/im)[1].split('.');
+      domain = domain[domain.length - 2] ?? domain[0];
+      return domain[0].toUpperCase() + domain.slice(1).toLowerCase();
+   }, []);
 
    useEffect(() => {
       const controller = new AbortController();
@@ -47,7 +52,7 @@ export default function Badge({ url, title }: { url: string, title: string }) {
                      <Tabs isFitted position='relative' variant='line'>
                         <PopoverArrow />
                         {/* <Stack direction="row" alignItems="center" justifyContent="space-between"> */}
-                           <PopoverHeader fontWeight={700} fontSize="16px" minW="fit-content">{window.location.hostname.slice(0,4) === 'www.' ? window.location.hostname.slice(4) : window.location.hostname}'s {title}</PopoverHeader>
+                           <PopoverHeader fontWeight={700} fontSize="16px" minW="fit-content">{domainName}'s {title}</PopoverHeader>
                            <PopoverCloseButton />
                         {/* </Stack> */}
                         <PopoverBody height="50vh" maxh="500px" overflowY="scroll">
@@ -56,14 +61,14 @@ export default function Badge({ url, title }: { url: string, title: string }) {
                                  <Text dangerouslySetInnerHTML={{ __html: data.summary }} />
                               </TabPanel>
                               <TabPanel p="0px">
-                                 <Chat url={url} />
+                                 <Chat url={url} title={title} domainName={domainName} />
                               </TabPanel>
                            </TabPanels>
                         </PopoverBody>
                         <PopoverFooter p="0px" height="50px">
                            <TabList height="50px">
-                              <Tab>Summary</Tab>
-                              <Tab>Chat</Tab>
+                              <Tab>Understand</Tab>
+                              <Tab>Ask</Tab>
                            </TabList>
                            <TabIndicator />
                         </PopoverFooter>
