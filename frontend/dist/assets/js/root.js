@@ -1,7 +1,7 @@
 import { r as reactExports, j as jsxRuntimeExports, R as React, c as createRoot, a as reactDomExports } from "./client.js";
+import { g as getAugmentedNamespace } from "./_commonjsHelpers.js";
+import { i as isObject, q as mergeWith, t as theme$1, c as createContext, m as mergeRefs, p as cx, b as chakra, r as Spinner, j as forwardRef, s as useStyleConfig, o as omitThemingProps, v as useMergeRefs, g as dataAttr, u as useCallbackRef$1, w as callAllHandlers, f as useUpdateEffect, e as useSafeLayoutEffect$2, h as callAllHandlers$1, l as useMultiStyleConfig, x as useTheme$2, y as runIfFn, z as CloseButton, A as motion, n as callAll, k as keyframes, a as useControllableState, D as getValidChildren, E as useFormControl, _ as _extends$1, F as CacheProvider, G as createCache, H as Global, I as newStyled, T as ThemeContext, J as css, S as Stack, B as Box, P as Portal, C as ChakraProvider } from "./chunk-PULVB27S.js";
 import { a as addHmrIntoView } from "./_virtual_reload-on-update-in-view.js";
-import { i as isObject, q as mergeWith, t as theme$1, c as createContext, m as mergeRefs, p as cx, b as chakra, r as Spinner, j as forwardRef, s as useStyleConfig, o as omitThemingProps, v as useMergeRefs, g as dataAttr, u as useCallbackRef, f as useUpdateEffect, e as useSafeLayoutEffect$1, h as callAllHandlers, l as useMultiStyleConfig, w as useTheme$2, x as runIfFn, y as CloseButton, z as motion, n as callAll, a as useControllableState, A as getValidChildren, D as useFormControl, _ as _extends$1, E as CacheProvider, F as createCache, G as Global, H as newStyled, T as ThemeContext, I as css, k as keyframes, S as Stack, B as Box, P as Portal, C as ChakraProvider } from "./chunk-PULVB27S.js";
-import { c as commonjsGlobal, g as getAugmentedNamespace } from "./_commonjsHelpers.js";
 var requiredChakraThemeKeys = [
   "borders",
   "breakpoints",
@@ -68,6 +68,10 @@ function mergeThemeCustomizer(source, override, key, object) {
   }
   return void 0;
 }
+function canUseDOM() {
+  return !!(typeof window !== "undefined" && window.document && window.document.createElement);
+}
+var isBrowser = /* @__PURE__ */ canUseDOM();
 function compact(object) {
   const clone = Object.assign({}, object);
   for (let key in clone) {
@@ -111,7 +115,7 @@ function getPrevIndex(current, max2, loop) {
     next = max2;
   return next;
 }
-var useSafeLayoutEffect = typeof window !== "undefined" ? reactExports.useLayoutEffect : reactExports.useEffect;
+var useSafeLayoutEffect$1 = typeof window !== "undefined" ? reactExports.useLayoutEffect : reactExports.useEffect;
 var cast = (value) => value;
 var DescendantsManager = class {
   constructor() {
@@ -226,7 +230,7 @@ var DescendantsManager = class {
 };
 function useDescendants() {
   const descendants = reactExports.useRef(new DescendantsManager());
-  useSafeLayoutEffect(() => {
+  useSafeLayoutEffect$1(() => {
     return () => descendants.current.destroy();
   });
   return descendants.current;
@@ -239,14 +243,14 @@ function useDescendant(options) {
   const descendants = useDescendantsContext();
   const [index, setIndex] = reactExports.useState(-1);
   const ref = reactExports.useRef(null);
-  useSafeLayoutEffect(() => {
+  useSafeLayoutEffect$1(() => {
     return () => {
       if (!ref.current)
         return;
       descendants.unregister(ref.current);
     };
   }, []);
-  useSafeLayoutEffect(() => {
+  useSafeLayoutEffect$1(() => {
     if (!ref.current)
       return;
     const dataIndex = Number(ref.current.dataset["index"]);
@@ -446,7 +450,7 @@ var IconButton = forwardRef(
 );
 IconButton.displayName = "IconButton";
 function useEventListener(target, event, handler, options) {
-  const listener = useCallbackRef(handler);
+  const listener = useCallbackRef$1(handler);
   reactExports.useEffect(() => {
     const node = typeof target === "function" ? target() : target != null ? target : document;
     if (!handler || !node)
@@ -592,6 +596,76 @@ function getAllFocusable(container) {
   );
   focusableEls.unshift(container);
   return focusableEls.filter((el) => isFocusable(el) && isVisible(el));
+}
+var useSafeLayoutEffect = isBrowser ? reactExports.useLayoutEffect : reactExports.useEffect;
+function useCallbackRef(fn2, deps = []) {
+  const ref = reactExports.useRef(fn2);
+  useSafeLayoutEffect(() => {
+    ref.current = fn2;
+  });
+  return reactExports.useCallback((...args) => {
+    var _a;
+    return (_a = ref.current) == null ? void 0 : _a.call(ref, ...args);
+  }, deps);
+}
+function useId$1(idProp, prefix) {
+  const id = reactExports.useId();
+  return reactExports.useMemo(
+    () => idProp || [prefix, id].filter(Boolean).join("-"),
+    [idProp, prefix, id]
+  );
+}
+function useControllableProp(prop, state) {
+  const isControlled = prop !== void 0;
+  const value = isControlled && typeof prop !== "undefined" ? prop : state;
+  return [isControlled, value];
+}
+function useDisclosure$1(props = {}) {
+  const {
+    onClose: onCloseProp,
+    onOpen: onOpenProp,
+    isOpen: isOpenProp,
+    id: idProp
+  } = props;
+  const onOpenPropCallbackRef = useCallbackRef(onOpenProp);
+  const onClosePropCallbackRef = useCallbackRef(onCloseProp);
+  const [isOpenState, setIsOpen] = reactExports.useState(props.defaultIsOpen || false);
+  const [isControlled, isOpen] = useControllableProp(isOpenProp, isOpenState);
+  const id = useId$1(idProp, "disclosure");
+  const onClose = reactExports.useCallback(() => {
+    if (!isControlled) {
+      setIsOpen(false);
+    }
+    onClosePropCallbackRef == null ? void 0 : onClosePropCallbackRef();
+  }, [isControlled, onClosePropCallbackRef]);
+  const onOpen = reactExports.useCallback(() => {
+    if (!isControlled) {
+      setIsOpen(true);
+    }
+    onOpenPropCallbackRef == null ? void 0 : onOpenPropCallbackRef();
+  }, [isControlled, onOpenPropCallbackRef]);
+  const onToggle = reactExports.useCallback(() => {
+    const action = isOpen ? onClose : onOpen;
+    action();
+  }, [isOpen, onOpen, onClose]);
+  return {
+    isOpen: !!isOpen,
+    onOpen,
+    onClose,
+    onToggle,
+    isControlled,
+    getButtonProps: (props2 = {}) => ({
+      ...props2,
+      "aria-expanded": isOpen,
+      "aria-controls": id,
+      onClick: callAllHandlers(props2.onClick, onToggle)
+    }),
+    getDisclosureProps: (props2 = {}) => ({
+      ...props2,
+      hidden: !isOpen,
+      id
+    })
+  };
 }
 var Text = forwardRef(function Text2(props, ref) {
   const styles = useStyleConfig("Text", props);
@@ -879,7 +953,7 @@ function useFocusOnShow(target, options = defaultOptions) {
   const autoFocusValue = shouldFocus && visible;
   const autoFocusRef = reactExports.useRef(autoFocusValue);
   const lastVisibleRef = reactExports.useRef(visible);
-  useSafeLayoutEffect$1(() => {
+  useSafeLayoutEffect$2(() => {
     if (!lastVisibleRef.current && visible) {
       autoFocusRef.current = autoFocusValue;
     }
@@ -2631,8 +2705,8 @@ function useDisclosure(props = {}) {
     isOpen: isOpenProp,
     id: idProp
   } = props;
-  const handleOpen = useCallbackRef(onOpenProp);
-  const handleClose = useCallbackRef(onCloseProp);
+  const handleOpen = useCallbackRef$1(onOpenProp);
+  const handleClose = useCallbackRef$1(onCloseProp);
   const [isOpenState, setIsOpen] = reactExports.useState(props.defaultIsOpen || false);
   const isOpen = isOpenProp !== void 0 ? isOpenProp : isOpenState;
   const isControlled = isOpenProp !== void 0;
@@ -2840,12 +2914,12 @@ function usePopover(props = {}) {
         id: popoverId,
         tabIndex: -1,
         role: "dialog",
-        onKeyDown: callAllHandlers(props2.onKeyDown, (event) => {
+        onKeyDown: callAllHandlers$1(props2.onKeyDown, (event) => {
           if (closeOnEsc && event.key === "Escape") {
             onClose();
           }
         }),
-        onBlur: callAllHandlers(props2.onBlur, (event) => {
+        onBlur: callAllHandlers$1(props2.onBlur, (event) => {
           const relatedTarget = getRelatedTarget(event);
           const targetIsPopover = contains(popoverRef.current, relatedTarget);
           const targetIsTrigger = contains(triggerRef.current, relatedTarget);
@@ -2859,10 +2933,10 @@ function usePopover(props = {}) {
       };
       if (trigger === TRIGGER.hover) {
         popoverProps.role = "tooltip";
-        popoverProps.onMouseEnter = callAllHandlers(props2.onMouseEnter, () => {
+        popoverProps.onMouseEnter = callAllHandlers$1(props2.onMouseEnter, () => {
           isHoveringRef.current = true;
         });
-        popoverProps.onMouseLeave = callAllHandlers(
+        popoverProps.onMouseLeave = callAllHandlers$1(
           props2.onMouseLeave,
           (event) => {
             if (event.nativeEvent.relatedTarget === null) {
@@ -2936,31 +3010,31 @@ function usePopover(props = {}) {
         "aria-controls": popoverId
       };
       if (trigger === TRIGGER.click) {
-        triggerProps.onClick = callAllHandlers(props2.onClick, onToggle);
+        triggerProps.onClick = callAllHandlers$1(props2.onClick, onToggle);
       }
       if (trigger === TRIGGER.hover) {
-        triggerProps.onFocus = callAllHandlers(props2.onFocus, () => {
+        triggerProps.onFocus = callAllHandlers$1(props2.onFocus, () => {
           if (openTimeout.current === void 0) {
             onOpen();
           }
         });
-        triggerProps.onBlur = callAllHandlers(props2.onBlur, (event) => {
+        triggerProps.onBlur = callAllHandlers$1(props2.onBlur, (event) => {
           const relatedTarget = getRelatedTarget(event);
           const isValidBlur = !contains(popoverRef.current, relatedTarget);
           if (isOpen && closeOnBlur && isValidBlur) {
             onClose();
           }
         });
-        triggerProps.onKeyDown = callAllHandlers(props2.onKeyDown, (event) => {
+        triggerProps.onKeyDown = callAllHandlers$1(props2.onKeyDown, (event) => {
           if (event.key === "Escape") {
             onClose();
           }
         });
-        triggerProps.onMouseEnter = callAllHandlers(props2.onMouseEnter, () => {
+        triggerProps.onMouseEnter = callAllHandlers$1(props2.onMouseEnter, () => {
           isHoveringRef.current = true;
           openTimeout.current = window.setTimeout(() => onOpen(), openDelay);
         });
-        triggerProps.onMouseLeave = callAllHandlers(props2.onMouseLeave, () => {
+        triggerProps.onMouseLeave = callAllHandlers$1(props2.onMouseLeave, () => {
           isHoveringRef.current = false;
           if (openTimeout.current) {
             clearTimeout(openTimeout.current);
@@ -3214,6 +3288,166 @@ function PopoverFooter(props) {
   );
 }
 PopoverFooter.displayName = "PopoverFooter";
+var Circle = (props) => /* @__PURE__ */ jsxRuntimeExports.jsx(chakra.circle, { cx: 50, cy: 50, r: 42, fill: "transparent", ...props });
+Circle.displayName = "Circle";
+function valueToPercent(value, min2, max2) {
+  return (value - min2) * 100 / (max2 - min2);
+}
+var spin = keyframes({
+  "0%": {
+    strokeDasharray: "1, 400",
+    strokeDashoffset: "0"
+  },
+  "50%": {
+    strokeDasharray: "400, 400",
+    strokeDashoffset: "-100"
+  },
+  "100%": {
+    strokeDasharray: "400, 400",
+    strokeDashoffset: "-260"
+  }
+});
+var rotate = keyframes({
+  "0%": {
+    transform: "rotate(0deg)"
+  },
+  "100%": {
+    transform: "rotate(360deg)"
+  }
+});
+keyframes({
+  "0%": { left: "-40%" },
+  "100%": { left: "100%" }
+});
+keyframes({
+  from: { backgroundPosition: "1rem 0" },
+  to: { backgroundPosition: "0 0" }
+});
+function getProgressProps(options) {
+  const {
+    value = 0,
+    min: min2,
+    max: max2,
+    valueText,
+    getValueText,
+    isIndeterminate,
+    role = "progressbar"
+  } = options;
+  const percent = valueToPercent(value, min2, max2);
+  const getAriaValueText = () => {
+    if (value == null)
+      return void 0;
+    return typeof getValueText === "function" ? getValueText(value, percent) : valueText;
+  };
+  return {
+    bind: {
+      "data-indeterminate": isIndeterminate ? "" : void 0,
+      "aria-valuemax": max2,
+      "aria-valuemin": min2,
+      "aria-valuenow": isIndeterminate ? void 0 : value,
+      "aria-valuetext": getAriaValueText(),
+      role
+    },
+    percent,
+    value
+  };
+}
+var Shape = (props) => {
+  const { size, isIndeterminate, ...rest } = props;
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    chakra.svg,
+    {
+      viewBox: "0 0 100 100",
+      __css: {
+        width: size,
+        height: size,
+        animation: isIndeterminate ? `${rotate} 2s linear infinite` : void 0
+      },
+      ...rest
+    }
+  );
+};
+Shape.displayName = "Shape";
+var CircularProgress = forwardRef(
+  (props, ref) => {
+    var _a;
+    const {
+      size = "48px",
+      max: max2 = 100,
+      min: min2 = 0,
+      valueText,
+      getValueText,
+      value,
+      capIsRound,
+      children,
+      thickness = "10px",
+      color: color2 = "#0078d4",
+      trackColor = "#edebe9",
+      isIndeterminate,
+      ...rest
+    } = props;
+    const progress = getProgressProps({
+      min: min2,
+      max: max2,
+      value,
+      valueText,
+      getValueText,
+      isIndeterminate
+    });
+    const determinant = isIndeterminate ? void 0 : ((_a = progress.percent) != null ? _a : 0) * 2.64;
+    const strokeDasharray = determinant == null ? void 0 : `${determinant} ${264 - determinant}`;
+    const indicatorProps = isIndeterminate ? {
+      css: { animation: `${spin} 1.5s linear infinite` }
+    } : {
+      strokeDashoffset: 66,
+      strokeDasharray,
+      transitionProperty: "stroke-dasharray, stroke",
+      transitionDuration: "0.6s",
+      transitionTimingFunction: "ease"
+    };
+    const rootStyles = {
+      display: "inline-block",
+      position: "relative",
+      verticalAlign: "middle",
+      fontSize: size
+    };
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      chakra.div,
+      {
+        ref,
+        className: "chakra-progress",
+        ...progress.bind,
+        ...rest,
+        __css: rootStyles,
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Shape, { size, isIndeterminate, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              Circle,
+              {
+                stroke: trackColor,
+                strokeWidth: thickness,
+                className: "chakra-progress__track"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              Circle,
+              {
+                stroke: color2,
+                strokeWidth: thickness,
+                className: "chakra-progress__indicator",
+                strokeLinecap: capIsRound ? "round" : void 0,
+                opacity: progress.value === 0 && !isIndeterminate ? 0 : void 0,
+                ...indicatorProps
+              }
+            )
+          ] }),
+          children
+        ]
+      }
+    );
+  }
+);
+CircularProgress.displayName = "CircularProgress";
 var [
   TabsDescendantsProvider,
   useTabsDescendantsContext,
@@ -3321,7 +3555,7 @@ function useTabList(props) {
     ...props,
     role: "tablist",
     "aria-orientation": orientation,
-    onKeyDown: callAllHandlers(props.onKeyDown, onKeyDown)
+    onKeyDown: callAllHandlers$1(props.onKeyDown, onKeyDown)
   };
 }
 function useTab(props) {
@@ -3347,7 +3581,7 @@ function useTab(props) {
     ref: mergeRefs(register, props.ref),
     isDisabled: isDisabled2,
     isFocusable: isFocusable2,
-    onClick: callAllHandlers(props.onClick, onClick)
+    onClick: callAllHandlers$1(props.onClick, onClick)
   });
   const type = "button";
   return {
@@ -3358,7 +3592,7 @@ function useTab(props) {
     type,
     "aria-selected": isSelected,
     "aria-controls": makeTabPanelId(id, index),
-    onFocus: isDisabled2 ? void 0 : callAllHandlers(props.onFocus, onFocus)
+    onFocus: isDisabled2 ? void 0 : callAllHandlers$1(props.onFocus, onFocus)
   };
 }
 var [TabPanelProvider, useTabPanelContext] = createContext({});
@@ -3422,7 +3656,7 @@ function useTabIndicator() {
     return void 0;
   });
   const [hasMeasured, setHasMeasured] = reactExports.useState(false);
-  useSafeLayoutEffect$1(() => {
+  useSafeLayoutEffect$2(() => {
     if (selectedIndex == null)
       return;
     const tab = descendants.item(selectedIndex);
@@ -3597,7 +3831,6 @@ var Textarea = forwardRef((props, ref) => {
   );
 });
 Textarea.displayName = "Textarea";
-const injectedStyle = ".tnc-crawler-content-container * {\n   box-sizing: border-box !important;\n   margin: 0 !important;\n   padding: 0 !important;\n   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;\n}";
 var cssUnit = {
   cm: true,
   mm: true,
@@ -3713,3550 +3946,46 @@ function BounceLoader(_a) {
     reactExports.createElement("span", { style: style2(2) })
   );
 }
-var showdown = { exports: {} };
-(function(module) {
-  (function() {
-    function getDefaultOpts(simple) {
-      var defaultOptions2 = {
-        omitExtraWLInCodeBlocks: {
-          defaultValue: false,
-          describe: "Omit the default extra whiteline added to code blocks",
-          type: "boolean"
-        },
-        noHeaderId: {
-          defaultValue: false,
-          describe: "Turn on/off generated header id",
-          type: "boolean"
-        },
-        prefixHeaderId: {
-          defaultValue: false,
-          describe: "Add a prefix to the generated header ids. Passing a string will prefix that string to the header id. Setting to true will add a generic 'section-' prefix",
-          type: "string"
-        },
-        rawPrefixHeaderId: {
-          defaultValue: false,
-          describe: 'Setting this option to true will prevent showdown from modifying the prefix. This might result in malformed IDs (if, for instance, the " char is used in the prefix)',
-          type: "boolean"
-        },
-        ghCompatibleHeaderId: {
-          defaultValue: false,
-          describe: "Generate header ids compatible with github style (spaces are replaced with dashes, a bunch of non alphanumeric chars are removed)",
-          type: "boolean"
-        },
-        rawHeaderId: {
-          defaultValue: false,
-          describe: `Remove only spaces, ' and " from generated header ids (including prefixes), replacing them with dashes (-). WARNING: This might result in malformed ids`,
-          type: "boolean"
-        },
-        headerLevelStart: {
-          defaultValue: false,
-          describe: "The header blocks level start",
-          type: "integer"
-        },
-        parseImgDimensions: {
-          defaultValue: false,
-          describe: "Turn on/off image dimension parsing",
-          type: "boolean"
-        },
-        simplifiedAutoLink: {
-          defaultValue: false,
-          describe: "Turn on/off GFM autolink style",
-          type: "boolean"
-        },
-        excludeTrailingPunctuationFromURLs: {
-          defaultValue: false,
-          describe: "Excludes trailing punctuation from links generated with autoLinking",
-          type: "boolean"
-        },
-        literalMidWordUnderscores: {
-          defaultValue: false,
-          describe: "Parse midword underscores as literal underscores",
-          type: "boolean"
-        },
-        literalMidWordAsterisks: {
-          defaultValue: false,
-          describe: "Parse midword asterisks as literal asterisks",
-          type: "boolean"
-        },
-        strikethrough: {
-          defaultValue: false,
-          describe: "Turn on/off strikethrough support",
-          type: "boolean"
-        },
-        tables: {
-          defaultValue: false,
-          describe: "Turn on/off tables support",
-          type: "boolean"
-        },
-        tablesHeaderId: {
-          defaultValue: false,
-          describe: "Add an id to table headers",
-          type: "boolean"
-        },
-        ghCodeBlocks: {
-          defaultValue: true,
-          describe: "Turn on/off GFM fenced code blocks support",
-          type: "boolean"
-        },
-        tasklists: {
-          defaultValue: false,
-          describe: "Turn on/off GFM tasklist support",
-          type: "boolean"
-        },
-        smoothLivePreview: {
-          defaultValue: false,
-          describe: "Prevents weird effects in live previews due to incomplete input",
-          type: "boolean"
-        },
-        smartIndentationFix: {
-          defaultValue: false,
-          describe: "Tries to smartly fix indentation in es6 strings",
-          type: "boolean"
-        },
-        disableForced4SpacesIndentedSublists: {
-          defaultValue: false,
-          describe: "Disables the requirement of indenting nested sublists by 4 spaces",
-          type: "boolean"
-        },
-        simpleLineBreaks: {
-          defaultValue: false,
-          describe: "Parses simple line breaks as <br> (GFM Style)",
-          type: "boolean"
-        },
-        requireSpaceBeforeHeadingText: {
-          defaultValue: false,
-          describe: "Makes adding a space between `#` and the header text mandatory (GFM Style)",
-          type: "boolean"
-        },
-        ghMentions: {
-          defaultValue: false,
-          describe: "Enables github @mentions",
-          type: "boolean"
-        },
-        ghMentionsLink: {
-          defaultValue: "https://github.com/{u}",
-          describe: "Changes the link generated by @mentions. Only applies if ghMentions option is enabled.",
-          type: "string"
-        },
-        encodeEmails: {
-          defaultValue: true,
-          describe: "Encode e-mail addresses through the use of Character Entities, transforming ASCII e-mail addresses into its equivalent decimal entities",
-          type: "boolean"
-        },
-        openLinksInNewWindow: {
-          defaultValue: false,
-          describe: "Open all links in new windows",
-          type: "boolean"
-        },
-        backslashEscapesHTMLTags: {
-          defaultValue: false,
-          describe: "Support for HTML Tag escaping. ex: <div>foo</div>",
-          type: "boolean"
-        },
-        emoji: {
-          defaultValue: false,
-          describe: "Enable emoji support. Ex: `this is a :smile: emoji`",
-          type: "boolean"
-        },
-        underline: {
-          defaultValue: false,
-          describe: "Enable support for underline. Syntax is double or triple underscores: `__underline word__`. With this option enabled, underscores no longer parses into `<em>` and `<strong>`",
-          type: "boolean"
-        },
-        ellipsis: {
-          defaultValue: true,
-          describe: "Replaces three dots with the ellipsis unicode character",
-          type: "boolean"
-        },
-        completeHTMLDocument: {
-          defaultValue: false,
-          describe: "Outputs a complete html document, including `<html>`, `<head>` and `<body>` tags",
-          type: "boolean"
-        },
-        metadata: {
-          defaultValue: false,
-          describe: "Enable support for document metadata (defined at the top of the document between `«««` and `»»»` or between `---` and `---`).",
-          type: "boolean"
-        },
-        splitAdjacentBlockquotes: {
-          defaultValue: false,
-          describe: "Split adjacent blockquote blocks",
-          type: "boolean"
-        }
-      };
-      if (simple === false) {
-        return JSON.parse(JSON.stringify(defaultOptions2));
-      }
-      var ret = {};
-      for (var opt in defaultOptions2) {
-        if (defaultOptions2.hasOwnProperty(opt)) {
-          ret[opt] = defaultOptions2[opt].defaultValue;
-        }
-      }
-      return ret;
-    }
-    function allOptionsOn() {
-      var options = getDefaultOpts(true), ret = {};
-      for (var opt in options) {
-        if (options.hasOwnProperty(opt)) {
-          ret[opt] = true;
-        }
-      }
-      return ret;
-    }
-    var showdown2 = {}, parsers = {}, extensions = {}, globalOptions = getDefaultOpts(true), setFlavor = "vanilla", flavor = {
-      github: {
-        omitExtraWLInCodeBlocks: true,
-        simplifiedAutoLink: true,
-        excludeTrailingPunctuationFromURLs: true,
-        literalMidWordUnderscores: true,
-        strikethrough: true,
-        tables: true,
-        tablesHeaderId: true,
-        ghCodeBlocks: true,
-        tasklists: true,
-        disableForced4SpacesIndentedSublists: true,
-        simpleLineBreaks: true,
-        requireSpaceBeforeHeadingText: true,
-        ghCompatibleHeaderId: true,
-        ghMentions: true,
-        backslashEscapesHTMLTags: true,
-        emoji: true,
-        splitAdjacentBlockquotes: true
-      },
-      original: {
-        noHeaderId: true,
-        ghCodeBlocks: false
-      },
-      ghost: {
-        omitExtraWLInCodeBlocks: true,
-        parseImgDimensions: true,
-        simplifiedAutoLink: true,
-        excludeTrailingPunctuationFromURLs: true,
-        literalMidWordUnderscores: true,
-        strikethrough: true,
-        tables: true,
-        tablesHeaderId: true,
-        ghCodeBlocks: true,
-        tasklists: true,
-        smoothLivePreview: true,
-        simpleLineBreaks: true,
-        requireSpaceBeforeHeadingText: true,
-        ghMentions: false,
-        encodeEmails: true
-      },
-      vanilla: getDefaultOpts(true),
-      allOn: allOptionsOn()
-    };
-    showdown2.helper = {};
-    showdown2.extensions = {};
-    showdown2.setOption = function(key, value) {
-      globalOptions[key] = value;
-      return this;
-    };
-    showdown2.getOption = function(key) {
-      return globalOptions[key];
-    };
-    showdown2.getOptions = function() {
-      return globalOptions;
-    };
-    showdown2.resetOptions = function() {
-      globalOptions = getDefaultOpts(true);
-    };
-    showdown2.setFlavor = function(name) {
-      if (!flavor.hasOwnProperty(name)) {
-        throw Error(name + " flavor was not found");
-      }
-      showdown2.resetOptions();
-      var preset = flavor[name];
-      setFlavor = name;
-      for (var option in preset) {
-        if (preset.hasOwnProperty(option)) {
-          globalOptions[option] = preset[option];
-        }
-      }
-    };
-    showdown2.getFlavor = function() {
-      return setFlavor;
-    };
-    showdown2.getFlavorOptions = function(name) {
-      if (flavor.hasOwnProperty(name)) {
-        return flavor[name];
-      }
-    };
-    showdown2.getDefaultOptions = function(simple) {
-      return getDefaultOpts(simple);
-    };
-    showdown2.subParser = function(name, func) {
-      if (showdown2.helper.isString(name)) {
-        if (typeof func !== "undefined") {
-          parsers[name] = func;
-        } else {
-          if (parsers.hasOwnProperty(name)) {
-            return parsers[name];
-          } else {
-            throw Error("SubParser named " + name + " not registered!");
-          }
-        }
-      }
-    };
-    showdown2.extension = function(name, ext) {
-      if (!showdown2.helper.isString(name)) {
-        throw Error("Extension 'name' must be a string");
-      }
-      name = showdown2.helper.stdExtName(name);
-      if (showdown2.helper.isUndefined(ext)) {
-        if (!extensions.hasOwnProperty(name)) {
-          throw Error("Extension named " + name + " is not registered!");
-        }
-        return extensions[name];
-      } else {
-        if (typeof ext === "function") {
-          ext = ext();
-        }
-        if (!showdown2.helper.isArray(ext)) {
-          ext = [ext];
-        }
-        var validExtension = validate(ext, name);
-        if (validExtension.valid) {
-          extensions[name] = ext;
-        } else {
-          throw Error(validExtension.error);
-        }
-      }
-    };
-    showdown2.getAllExtensions = function() {
-      return extensions;
-    };
-    showdown2.removeExtension = function(name) {
-      delete extensions[name];
-    };
-    showdown2.resetExtensions = function() {
-      extensions = {};
-    };
-    function validate(extension, name) {
-      var errMsg = name ? "Error in " + name + " extension->" : "Error in unnamed extension", ret = {
-        valid: true,
-        error: ""
-      };
-      if (!showdown2.helper.isArray(extension)) {
-        extension = [extension];
-      }
-      for (var i = 0; i < extension.length; ++i) {
-        var baseMsg = errMsg + " sub-extension " + i + ": ", ext = extension[i];
-        if (typeof ext !== "object") {
-          ret.valid = false;
-          ret.error = baseMsg + "must be an object, but " + typeof ext + " given";
-          return ret;
-        }
-        if (!showdown2.helper.isString(ext.type)) {
-          ret.valid = false;
-          ret.error = baseMsg + 'property "type" must be a string, but ' + typeof ext.type + " given";
-          return ret;
-        }
-        var type = ext.type = ext.type.toLowerCase();
-        if (type === "language") {
-          type = ext.type = "lang";
-        }
-        if (type === "html") {
-          type = ext.type = "output";
-        }
-        if (type !== "lang" && type !== "output" && type !== "listener") {
-          ret.valid = false;
-          ret.error = baseMsg + "type " + type + ' is not recognized. Valid values: "lang/language", "output/html" or "listener"';
-          return ret;
-        }
-        if (type === "listener") {
-          if (showdown2.helper.isUndefined(ext.listeners)) {
-            ret.valid = false;
-            ret.error = baseMsg + '. Extensions of type "listener" must have a property called "listeners"';
-            return ret;
-          }
-        } else {
-          if (showdown2.helper.isUndefined(ext.filter) && showdown2.helper.isUndefined(ext.regex)) {
-            ret.valid = false;
-            ret.error = baseMsg + type + ' extensions must define either a "regex" property or a "filter" method';
-            return ret;
-          }
-        }
-        if (ext.listeners) {
-          if (typeof ext.listeners !== "object") {
-            ret.valid = false;
-            ret.error = baseMsg + '"listeners" property must be an object but ' + typeof ext.listeners + " given";
-            return ret;
-          }
-          for (var ln in ext.listeners) {
-            if (ext.listeners.hasOwnProperty(ln)) {
-              if (typeof ext.listeners[ln] !== "function") {
-                ret.valid = false;
-                ret.error = baseMsg + '"listeners" property must be an hash of [event name]: [callback]. listeners.' + ln + " must be a function but " + typeof ext.listeners[ln] + " given";
-                return ret;
-              }
-            }
-          }
-        }
-        if (ext.filter) {
-          if (typeof ext.filter !== "function") {
-            ret.valid = false;
-            ret.error = baseMsg + '"filter" must be a function, but ' + typeof ext.filter + " given";
-            return ret;
-          }
-        } else if (ext.regex) {
-          if (showdown2.helper.isString(ext.regex)) {
-            ext.regex = new RegExp(ext.regex, "g");
-          }
-          if (!(ext.regex instanceof RegExp)) {
-            ret.valid = false;
-            ret.error = baseMsg + '"regex" property must either be a string or a RegExp object, but ' + typeof ext.regex + " given";
-            return ret;
-          }
-          if (showdown2.helper.isUndefined(ext.replace)) {
-            ret.valid = false;
-            ret.error = baseMsg + '"regex" extensions must implement a replace string or function';
-            return ret;
-          }
-        }
-      }
-      return ret;
-    }
-    showdown2.validateExtension = function(ext) {
-      var validateExtension = validate(ext, null);
-      if (!validateExtension.valid) {
-        console.warn(validateExtension.error);
-        return false;
-      }
-      return true;
-    };
-    if (!showdown2.hasOwnProperty("helper")) {
-      showdown2.helper = {};
-    }
-    showdown2.helper.isString = function(a) {
-      return typeof a === "string" || a instanceof String;
-    };
-    showdown2.helper.isFunction = function(a) {
-      var getType = {};
-      return a && getType.toString.call(a) === "[object Function]";
-    };
-    showdown2.helper.isArray = function(a) {
-      return Array.isArray(a);
-    };
-    showdown2.helper.isUndefined = function(value) {
-      return typeof value === "undefined";
-    };
-    showdown2.helper.forEach = function(obj, callback) {
-      if (showdown2.helper.isUndefined(obj)) {
-        throw new Error("obj param is required");
-      }
-      if (showdown2.helper.isUndefined(callback)) {
-        throw new Error("callback param is required");
-      }
-      if (!showdown2.helper.isFunction(callback)) {
-        throw new Error("callback param must be a function/closure");
-      }
-      if (typeof obj.forEach === "function") {
-        obj.forEach(callback);
-      } else if (showdown2.helper.isArray(obj)) {
-        for (var i = 0; i < obj.length; i++) {
-          callback(obj[i], i, obj);
-        }
-      } else if (typeof obj === "object") {
-        for (var prop in obj) {
-          if (obj.hasOwnProperty(prop)) {
-            callback(obj[prop], prop, obj);
-          }
-        }
-      } else {
-        throw new Error("obj does not seem to be an array or an iterable object");
-      }
-    };
-    showdown2.helper.stdExtName = function(s) {
-      return s.replace(/[_?*+\/\\.^-]/g, "").replace(/\s/g, "").toLowerCase();
-    };
-    function escapeCharactersCallback(wholeMatch, m1) {
-      var charCodeToEscape = m1.charCodeAt(0);
-      return "¨E" + charCodeToEscape + "E";
-    }
-    showdown2.helper.escapeCharactersCallback = escapeCharactersCallback;
-    showdown2.helper.escapeCharacters = function(text, charsToEscape, afterBackslash) {
-      var regexString = "([" + charsToEscape.replace(/([\[\]\\])/g, "\\$1") + "])";
-      if (afterBackslash) {
-        regexString = "\\\\" + regexString;
-      }
-      var regex = new RegExp(regexString, "g");
-      text = text.replace(regex, escapeCharactersCallback);
-      return text;
-    };
-    showdown2.helper.unescapeHTMLEntities = function(txt) {
-      return txt.replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
-    };
-    var rgxFindMatchPos = function(str, left2, right2, flags) {
-      var f2 = flags || "", g2 = f2.indexOf("g") > -1, x = new RegExp(left2 + "|" + right2, "g" + f2.replace(/g/g, "")), l2 = new RegExp(left2, f2.replace(/g/g, "")), pos = [], t2, s, m2, start2, end2;
-      do {
-        t2 = 0;
-        while (m2 = x.exec(str)) {
-          if (l2.test(m2[0])) {
-            if (!t2++) {
-              s = x.lastIndex;
-              start2 = s - m2[0].length;
-            }
-          } else if (t2) {
-            if (!--t2) {
-              end2 = m2.index + m2[0].length;
-              var obj = {
-                left: { start: start2, end: s },
-                match: { start: s, end: m2.index },
-                right: { start: m2.index, end: end2 },
-                wholeMatch: { start: start2, end: end2 }
-              };
-              pos.push(obj);
-              if (!g2) {
-                return pos;
-              }
-            }
-          }
-        }
-      } while (t2 && (x.lastIndex = s));
-      return pos;
-    };
-    showdown2.helper.matchRecursiveRegExp = function(str, left2, right2, flags) {
-      var matchPos = rgxFindMatchPos(str, left2, right2, flags), results = [];
-      for (var i = 0; i < matchPos.length; ++i) {
-        results.push([
-          str.slice(matchPos[i].wholeMatch.start, matchPos[i].wholeMatch.end),
-          str.slice(matchPos[i].match.start, matchPos[i].match.end),
-          str.slice(matchPos[i].left.start, matchPos[i].left.end),
-          str.slice(matchPos[i].right.start, matchPos[i].right.end)
-        ]);
-      }
-      return results;
-    };
-    showdown2.helper.replaceRecursiveRegExp = function(str, replacement, left2, right2, flags) {
-      if (!showdown2.helper.isFunction(replacement)) {
-        var repStr = replacement;
-        replacement = function() {
-          return repStr;
-        };
-      }
-      var matchPos = rgxFindMatchPos(str, left2, right2, flags), finalStr = str, lng = matchPos.length;
-      if (lng > 0) {
-        var bits = [];
-        if (matchPos[0].wholeMatch.start !== 0) {
-          bits.push(str.slice(0, matchPos[0].wholeMatch.start));
-        }
-        for (var i = 0; i < lng; ++i) {
-          bits.push(
-            replacement(
-              str.slice(matchPos[i].wholeMatch.start, matchPos[i].wholeMatch.end),
-              str.slice(matchPos[i].match.start, matchPos[i].match.end),
-              str.slice(matchPos[i].left.start, matchPos[i].left.end),
-              str.slice(matchPos[i].right.start, matchPos[i].right.end)
-            )
-          );
-          if (i < lng - 1) {
-            bits.push(str.slice(matchPos[i].wholeMatch.end, matchPos[i + 1].wholeMatch.start));
-          }
-        }
-        if (matchPos[lng - 1].wholeMatch.end < str.length) {
-          bits.push(str.slice(matchPos[lng - 1].wholeMatch.end));
-        }
-        finalStr = bits.join("");
-      }
-      return finalStr;
-    };
-    showdown2.helper.regexIndexOf = function(str, regex, fromIndex) {
-      if (!showdown2.helper.isString(str)) {
-        throw "InvalidArgumentError: first parameter of showdown.helper.regexIndexOf function must be a string";
-      }
-      if (regex instanceof RegExp === false) {
-        throw "InvalidArgumentError: second parameter of showdown.helper.regexIndexOf function must be an instance of RegExp";
-      }
-      var indexOf = str.substring(fromIndex || 0).search(regex);
-      return indexOf >= 0 ? indexOf + (fromIndex || 0) : indexOf;
-    };
-    showdown2.helper.splitAtIndex = function(str, index) {
-      if (!showdown2.helper.isString(str)) {
-        throw "InvalidArgumentError: first parameter of showdown.helper.regexIndexOf function must be a string";
-      }
-      return [str.substring(0, index), str.substring(index)];
-    };
-    showdown2.helper.encodeEmailAddress = function(mail) {
-      var encode = [
-        function(ch) {
-          return "&#" + ch.charCodeAt(0) + ";";
-        },
-        function(ch) {
-          return "&#x" + ch.charCodeAt(0).toString(16) + ";";
-        },
-        function(ch) {
-          return ch;
-        }
-      ];
-      mail = mail.replace(/./g, function(ch) {
-        if (ch === "@") {
-          ch = encode[Math.floor(Math.random() * 2)](ch);
-        } else {
-          var r2 = Math.random();
-          ch = r2 > 0.9 ? encode[2](ch) : r2 > 0.45 ? encode[1](ch) : encode[0](ch);
-        }
-        return ch;
-      });
-      return mail;
-    };
-    showdown2.helper.padEnd = function padEnd(str, targetLength, padString) {
-      targetLength = targetLength >> 0;
-      padString = String(padString || " ");
-      if (str.length > targetLength) {
-        return String(str);
-      } else {
-        targetLength = targetLength - str.length;
-        if (targetLength > padString.length) {
-          padString += padString.repeat(targetLength / padString.length);
-        }
-        return String(str) + padString.slice(0, targetLength);
-      }
-    };
-    if (typeof console === "undefined") {
-      console = {
-        warn: function(msg) {
-          alert(msg);
-        },
-        log: function(msg) {
-          alert(msg);
-        },
-        error: function(msg) {
-          throw msg;
-        }
-      };
-    }
-    showdown2.helper.regexes = {
-      asteriskDashAndColon: /([*_:~])/g
-    };
-    showdown2.helper.emojis = {
-      "+1": "👍",
-      "-1": "👎",
-      "100": "💯",
-      "1234": "🔢",
-      "1st_place_medal": "🥇",
-      "2nd_place_medal": "🥈",
-      "3rd_place_medal": "🥉",
-      "8ball": "🎱",
-      "a": "🅰️",
-      "ab": "🆎",
-      "abc": "🔤",
-      "abcd": "🔡",
-      "accept": "🉑",
-      "aerial_tramway": "🚡",
-      "airplane": "✈️",
-      "alarm_clock": "⏰",
-      "alembic": "⚗️",
-      "alien": "👽",
-      "ambulance": "🚑",
-      "amphora": "🏺",
-      "anchor": "⚓️",
-      "angel": "👼",
-      "anger": "💢",
-      "angry": "😠",
-      "anguished": "😧",
-      "ant": "🐜",
-      "apple": "🍎",
-      "aquarius": "♒️",
-      "aries": "♈️",
-      "arrow_backward": "◀️",
-      "arrow_double_down": "⏬",
-      "arrow_double_up": "⏫",
-      "arrow_down": "⬇️",
-      "arrow_down_small": "🔽",
-      "arrow_forward": "▶️",
-      "arrow_heading_down": "⤵️",
-      "arrow_heading_up": "⤴️",
-      "arrow_left": "⬅️",
-      "arrow_lower_left": "↙️",
-      "arrow_lower_right": "↘️",
-      "arrow_right": "➡️",
-      "arrow_right_hook": "↪️",
-      "arrow_up": "⬆️",
-      "arrow_up_down": "↕️",
-      "arrow_up_small": "🔼",
-      "arrow_upper_left": "↖️",
-      "arrow_upper_right": "↗️",
-      "arrows_clockwise": "🔃",
-      "arrows_counterclockwise": "🔄",
-      "art": "🎨",
-      "articulated_lorry": "🚛",
-      "artificial_satellite": "🛰",
-      "astonished": "😲",
-      "athletic_shoe": "👟",
-      "atm": "🏧",
-      "atom_symbol": "⚛️",
-      "avocado": "🥑",
-      "b": "🅱️",
-      "baby": "👶",
-      "baby_bottle": "🍼",
-      "baby_chick": "🐤",
-      "baby_symbol": "🚼",
-      "back": "🔙",
-      "bacon": "🥓",
-      "badminton": "🏸",
-      "baggage_claim": "🛄",
-      "baguette_bread": "🥖",
-      "balance_scale": "⚖️",
-      "balloon": "🎈",
-      "ballot_box": "🗳",
-      "ballot_box_with_check": "☑️",
-      "bamboo": "🎍",
-      "banana": "🍌",
-      "bangbang": "‼️",
-      "bank": "🏦",
-      "bar_chart": "📊",
-      "barber": "💈",
-      "baseball": "⚾️",
-      "basketball": "🏀",
-      "basketball_man": "⛹️",
-      "basketball_woman": "⛹️&zwj;♀️",
-      "bat": "🦇",
-      "bath": "🛀",
-      "bathtub": "🛁",
-      "battery": "🔋",
-      "beach_umbrella": "🏖",
-      "bear": "🐻",
-      "bed": "🛏",
-      "bee": "🐝",
-      "beer": "🍺",
-      "beers": "🍻",
-      "beetle": "🐞",
-      "beginner": "🔰",
-      "bell": "🔔",
-      "bellhop_bell": "🛎",
-      "bento": "🍱",
-      "biking_man": "🚴",
-      "bike": "🚲",
-      "biking_woman": "🚴&zwj;♀️",
-      "bikini": "👙",
-      "biohazard": "☣️",
-      "bird": "🐦",
-      "birthday": "🎂",
-      "black_circle": "⚫️",
-      "black_flag": "🏴",
-      "black_heart": "🖤",
-      "black_joker": "🃏",
-      "black_large_square": "⬛️",
-      "black_medium_small_square": "◾️",
-      "black_medium_square": "◼️",
-      "black_nib": "✒️",
-      "black_small_square": "▪️",
-      "black_square_button": "🔲",
-      "blonde_man": "👱",
-      "blonde_woman": "👱&zwj;♀️",
-      "blossom": "🌼",
-      "blowfish": "🐡",
-      "blue_book": "📘",
-      "blue_car": "🚙",
-      "blue_heart": "💙",
-      "blush": "😊",
-      "boar": "🐗",
-      "boat": "⛵️",
-      "bomb": "💣",
-      "book": "📖",
-      "bookmark": "🔖",
-      "bookmark_tabs": "📑",
-      "books": "📚",
-      "boom": "💥",
-      "boot": "👢",
-      "bouquet": "💐",
-      "bowing_man": "🙇",
-      "bow_and_arrow": "🏹",
-      "bowing_woman": "🙇&zwj;♀️",
-      "bowling": "🎳",
-      "boxing_glove": "🥊",
-      "boy": "👦",
-      "bread": "🍞",
-      "bride_with_veil": "👰",
-      "bridge_at_night": "🌉",
-      "briefcase": "💼",
-      "broken_heart": "💔",
-      "bug": "🐛",
-      "building_construction": "🏗",
-      "bulb": "💡",
-      "bullettrain_front": "🚅",
-      "bullettrain_side": "🚄",
-      "burrito": "🌯",
-      "bus": "🚌",
-      "business_suit_levitating": "🕴",
-      "busstop": "🚏",
-      "bust_in_silhouette": "👤",
-      "busts_in_silhouette": "👥",
-      "butterfly": "🦋",
-      "cactus": "🌵",
-      "cake": "🍰",
-      "calendar": "📆",
-      "call_me_hand": "🤙",
-      "calling": "📲",
-      "camel": "🐫",
-      "camera": "📷",
-      "camera_flash": "📸",
-      "camping": "🏕",
-      "cancer": "♋️",
-      "candle": "🕯",
-      "candy": "🍬",
-      "canoe": "🛶",
-      "capital_abcd": "🔠",
-      "capricorn": "♑️",
-      "car": "🚗",
-      "card_file_box": "🗃",
-      "card_index": "📇",
-      "card_index_dividers": "🗂",
-      "carousel_horse": "🎠",
-      "carrot": "🥕",
-      "cat": "🐱",
-      "cat2": "🐈",
-      "cd": "💿",
-      "chains": "⛓",
-      "champagne": "🍾",
-      "chart": "💹",
-      "chart_with_downwards_trend": "📉",
-      "chart_with_upwards_trend": "📈",
-      "checkered_flag": "🏁",
-      "cheese": "🧀",
-      "cherries": "🍒",
-      "cherry_blossom": "🌸",
-      "chestnut": "🌰",
-      "chicken": "🐔",
-      "children_crossing": "🚸",
-      "chipmunk": "🐿",
-      "chocolate_bar": "🍫",
-      "christmas_tree": "🎄",
-      "church": "⛪️",
-      "cinema": "🎦",
-      "circus_tent": "🎪",
-      "city_sunrise": "🌇",
-      "city_sunset": "🌆",
-      "cityscape": "🏙",
-      "cl": "🆑",
-      "clamp": "🗜",
-      "clap": "👏",
-      "clapper": "🎬",
-      "classical_building": "🏛",
-      "clinking_glasses": "🥂",
-      "clipboard": "📋",
-      "clock1": "🕐",
-      "clock10": "🕙",
-      "clock1030": "🕥",
-      "clock11": "🕚",
-      "clock1130": "🕦",
-      "clock12": "🕛",
-      "clock1230": "🕧",
-      "clock130": "🕜",
-      "clock2": "🕑",
-      "clock230": "🕝",
-      "clock3": "🕒",
-      "clock330": "🕞",
-      "clock4": "🕓",
-      "clock430": "🕟",
-      "clock5": "🕔",
-      "clock530": "🕠",
-      "clock6": "🕕",
-      "clock630": "🕡",
-      "clock7": "🕖",
-      "clock730": "🕢",
-      "clock8": "🕗",
-      "clock830": "🕣",
-      "clock9": "🕘",
-      "clock930": "🕤",
-      "closed_book": "📕",
-      "closed_lock_with_key": "🔐",
-      "closed_umbrella": "🌂",
-      "cloud": "☁️",
-      "cloud_with_lightning": "🌩",
-      "cloud_with_lightning_and_rain": "⛈",
-      "cloud_with_rain": "🌧",
-      "cloud_with_snow": "🌨",
-      "clown_face": "🤡",
-      "clubs": "♣️",
-      "cocktail": "🍸",
-      "coffee": "☕️",
-      "coffin": "⚰️",
-      "cold_sweat": "😰",
-      "comet": "☄️",
-      "computer": "💻",
-      "computer_mouse": "🖱",
-      "confetti_ball": "🎊",
-      "confounded": "😖",
-      "confused": "😕",
-      "congratulations": "㊗️",
-      "construction": "🚧",
-      "construction_worker_man": "👷",
-      "construction_worker_woman": "👷&zwj;♀️",
-      "control_knobs": "🎛",
-      "convenience_store": "🏪",
-      "cookie": "🍪",
-      "cool": "🆒",
-      "policeman": "👮",
-      "copyright": "©️",
-      "corn": "🌽",
-      "couch_and_lamp": "🛋",
-      "couple": "👫",
-      "couple_with_heart_woman_man": "💑",
-      "couple_with_heart_man_man": "👨&zwj;❤️&zwj;👨",
-      "couple_with_heart_woman_woman": "👩&zwj;❤️&zwj;👩",
-      "couplekiss_man_man": "👨&zwj;❤️&zwj;💋&zwj;👨",
-      "couplekiss_man_woman": "💏",
-      "couplekiss_woman_woman": "👩&zwj;❤️&zwj;💋&zwj;👩",
-      "cow": "🐮",
-      "cow2": "🐄",
-      "cowboy_hat_face": "🤠",
-      "crab": "🦀",
-      "crayon": "🖍",
-      "credit_card": "💳",
-      "crescent_moon": "🌙",
-      "cricket": "🏏",
-      "crocodile": "🐊",
-      "croissant": "🥐",
-      "crossed_fingers": "🤞",
-      "crossed_flags": "🎌",
-      "crossed_swords": "⚔️",
-      "crown": "👑",
-      "cry": "😢",
-      "crying_cat_face": "😿",
-      "crystal_ball": "🔮",
-      "cucumber": "🥒",
-      "cupid": "💘",
-      "curly_loop": "➰",
-      "currency_exchange": "💱",
-      "curry": "🍛",
-      "custard": "🍮",
-      "customs": "🛃",
-      "cyclone": "🌀",
-      "dagger": "🗡",
-      "dancer": "💃",
-      "dancing_women": "👯",
-      "dancing_men": "👯&zwj;♂️",
-      "dango": "🍡",
-      "dark_sunglasses": "🕶",
-      "dart": "🎯",
-      "dash": "💨",
-      "date": "📅",
-      "deciduous_tree": "🌳",
-      "deer": "🦌",
-      "department_store": "🏬",
-      "derelict_house": "🏚",
-      "desert": "🏜",
-      "desert_island": "🏝",
-      "desktop_computer": "🖥",
-      "male_detective": "🕵️",
-      "diamond_shape_with_a_dot_inside": "💠",
-      "diamonds": "♦️",
-      "disappointed": "😞",
-      "disappointed_relieved": "😥",
-      "dizzy": "💫",
-      "dizzy_face": "😵",
-      "do_not_litter": "🚯",
-      "dog": "🐶",
-      "dog2": "🐕",
-      "dollar": "💵",
-      "dolls": "🎎",
-      "dolphin": "🐬",
-      "door": "🚪",
-      "doughnut": "🍩",
-      "dove": "🕊",
-      "dragon": "🐉",
-      "dragon_face": "🐲",
-      "dress": "👗",
-      "dromedary_camel": "🐪",
-      "drooling_face": "🤤",
-      "droplet": "💧",
-      "drum": "🥁",
-      "duck": "🦆",
-      "dvd": "📀",
-      "e-mail": "📧",
-      "eagle": "🦅",
-      "ear": "👂",
-      "ear_of_rice": "🌾",
-      "earth_africa": "🌍",
-      "earth_americas": "🌎",
-      "earth_asia": "🌏",
-      "egg": "🥚",
-      "eggplant": "🍆",
-      "eight_pointed_black_star": "✴️",
-      "eight_spoked_asterisk": "✳️",
-      "electric_plug": "🔌",
-      "elephant": "🐘",
-      "email": "✉️",
-      "end": "🔚",
-      "envelope_with_arrow": "📩",
-      "euro": "💶",
-      "european_castle": "🏰",
-      "european_post_office": "🏤",
-      "evergreen_tree": "🌲",
-      "exclamation": "❗️",
-      "expressionless": "😑",
-      "eye": "👁",
-      "eye_speech_bubble": "👁&zwj;🗨",
-      "eyeglasses": "👓",
-      "eyes": "👀",
-      "face_with_head_bandage": "🤕",
-      "face_with_thermometer": "🤒",
-      "fist_oncoming": "👊",
-      "factory": "🏭",
-      "fallen_leaf": "🍂",
-      "family_man_woman_boy": "👪",
-      "family_man_boy": "👨&zwj;👦",
-      "family_man_boy_boy": "👨&zwj;👦&zwj;👦",
-      "family_man_girl": "👨&zwj;👧",
-      "family_man_girl_boy": "👨&zwj;👧&zwj;👦",
-      "family_man_girl_girl": "👨&zwj;👧&zwj;👧",
-      "family_man_man_boy": "👨&zwj;👨&zwj;👦",
-      "family_man_man_boy_boy": "👨&zwj;👨&zwj;👦&zwj;👦",
-      "family_man_man_girl": "👨&zwj;👨&zwj;👧",
-      "family_man_man_girl_boy": "👨&zwj;👨&zwj;👧&zwj;👦",
-      "family_man_man_girl_girl": "👨&zwj;👨&zwj;👧&zwj;👧",
-      "family_man_woman_boy_boy": "👨&zwj;👩&zwj;👦&zwj;👦",
-      "family_man_woman_girl": "👨&zwj;👩&zwj;👧",
-      "family_man_woman_girl_boy": "👨&zwj;👩&zwj;👧&zwj;👦",
-      "family_man_woman_girl_girl": "👨&zwj;👩&zwj;👧&zwj;👧",
-      "family_woman_boy": "👩&zwj;👦",
-      "family_woman_boy_boy": "👩&zwj;👦&zwj;👦",
-      "family_woman_girl": "👩&zwj;👧",
-      "family_woman_girl_boy": "👩&zwj;👧&zwj;👦",
-      "family_woman_girl_girl": "👩&zwj;👧&zwj;👧",
-      "family_woman_woman_boy": "👩&zwj;👩&zwj;👦",
-      "family_woman_woman_boy_boy": "👩&zwj;👩&zwj;👦&zwj;👦",
-      "family_woman_woman_girl": "👩&zwj;👩&zwj;👧",
-      "family_woman_woman_girl_boy": "👩&zwj;👩&zwj;👧&zwj;👦",
-      "family_woman_woman_girl_girl": "👩&zwj;👩&zwj;👧&zwj;👧",
-      "fast_forward": "⏩",
-      "fax": "📠",
-      "fearful": "😨",
-      "feet": "🐾",
-      "female_detective": "🕵️&zwj;♀️",
-      "ferris_wheel": "🎡",
-      "ferry": "⛴",
-      "field_hockey": "🏑",
-      "file_cabinet": "🗄",
-      "file_folder": "📁",
-      "film_projector": "📽",
-      "film_strip": "🎞",
-      "fire": "🔥",
-      "fire_engine": "🚒",
-      "fireworks": "🎆",
-      "first_quarter_moon": "🌓",
-      "first_quarter_moon_with_face": "🌛",
-      "fish": "🐟",
-      "fish_cake": "🍥",
-      "fishing_pole_and_fish": "🎣",
-      "fist_raised": "✊",
-      "fist_left": "🤛",
-      "fist_right": "🤜",
-      "flags": "🎏",
-      "flashlight": "🔦",
-      "fleur_de_lis": "⚜️",
-      "flight_arrival": "🛬",
-      "flight_departure": "🛫",
-      "floppy_disk": "💾",
-      "flower_playing_cards": "🎴",
-      "flushed": "😳",
-      "fog": "🌫",
-      "foggy": "🌁",
-      "football": "🏈",
-      "footprints": "👣",
-      "fork_and_knife": "🍴",
-      "fountain": "⛲️",
-      "fountain_pen": "🖋",
-      "four_leaf_clover": "🍀",
-      "fox_face": "🦊",
-      "framed_picture": "🖼",
-      "free": "🆓",
-      "fried_egg": "🍳",
-      "fried_shrimp": "🍤",
-      "fries": "🍟",
-      "frog": "🐸",
-      "frowning": "😦",
-      "frowning_face": "☹️",
-      "frowning_man": "🙍&zwj;♂️",
-      "frowning_woman": "🙍",
-      "middle_finger": "🖕",
-      "fuelpump": "⛽️",
-      "full_moon": "🌕",
-      "full_moon_with_face": "🌝",
-      "funeral_urn": "⚱️",
-      "game_die": "🎲",
-      "gear": "⚙️",
-      "gem": "💎",
-      "gemini": "♊️",
-      "ghost": "👻",
-      "gift": "🎁",
-      "gift_heart": "💝",
-      "girl": "👧",
-      "globe_with_meridians": "🌐",
-      "goal_net": "🥅",
-      "goat": "🐐",
-      "golf": "⛳️",
-      "golfing_man": "🏌️",
-      "golfing_woman": "🏌️&zwj;♀️",
-      "gorilla": "🦍",
-      "grapes": "🍇",
-      "green_apple": "🍏",
-      "green_book": "📗",
-      "green_heart": "💚",
-      "green_salad": "🥗",
-      "grey_exclamation": "❕",
-      "grey_question": "❔",
-      "grimacing": "😬",
-      "grin": "😁",
-      "grinning": "😀",
-      "guardsman": "💂",
-      "guardswoman": "💂&zwj;♀️",
-      "guitar": "🎸",
-      "gun": "🔫",
-      "haircut_woman": "💇",
-      "haircut_man": "💇&zwj;♂️",
-      "hamburger": "🍔",
-      "hammer": "🔨",
-      "hammer_and_pick": "⚒",
-      "hammer_and_wrench": "🛠",
-      "hamster": "🐹",
-      "hand": "✋",
-      "handbag": "👜",
-      "handshake": "🤝",
-      "hankey": "💩",
-      "hatched_chick": "🐥",
-      "hatching_chick": "🐣",
-      "headphones": "🎧",
-      "hear_no_evil": "🙉",
-      "heart": "❤️",
-      "heart_decoration": "💟",
-      "heart_eyes": "😍",
-      "heart_eyes_cat": "😻",
-      "heartbeat": "💓",
-      "heartpulse": "💗",
-      "hearts": "♥️",
-      "heavy_check_mark": "✔️",
-      "heavy_division_sign": "➗",
-      "heavy_dollar_sign": "💲",
-      "heavy_heart_exclamation": "❣️",
-      "heavy_minus_sign": "➖",
-      "heavy_multiplication_x": "✖️",
-      "heavy_plus_sign": "➕",
-      "helicopter": "🚁",
-      "herb": "🌿",
-      "hibiscus": "🌺",
-      "high_brightness": "🔆",
-      "high_heel": "👠",
-      "hocho": "🔪",
-      "hole": "🕳",
-      "honey_pot": "🍯",
-      "horse": "🐴",
-      "horse_racing": "🏇",
-      "hospital": "🏥",
-      "hot_pepper": "🌶",
-      "hotdog": "🌭",
-      "hotel": "🏨",
-      "hotsprings": "♨️",
-      "hourglass": "⌛️",
-      "hourglass_flowing_sand": "⏳",
-      "house": "🏠",
-      "house_with_garden": "🏡",
-      "houses": "🏘",
-      "hugs": "🤗",
-      "hushed": "😯",
-      "ice_cream": "🍨",
-      "ice_hockey": "🏒",
-      "ice_skate": "⛸",
-      "icecream": "🍦",
-      "id": "🆔",
-      "ideograph_advantage": "🉐",
-      "imp": "👿",
-      "inbox_tray": "📥",
-      "incoming_envelope": "📨",
-      "tipping_hand_woman": "💁",
-      "information_source": "ℹ️",
-      "innocent": "😇",
-      "interrobang": "⁉️",
-      "iphone": "📱",
-      "izakaya_lantern": "🏮",
-      "jack_o_lantern": "🎃",
-      "japan": "🗾",
-      "japanese_castle": "🏯",
-      "japanese_goblin": "👺",
-      "japanese_ogre": "👹",
-      "jeans": "👖",
-      "joy": "😂",
-      "joy_cat": "😹",
-      "joystick": "🕹",
-      "kaaba": "🕋",
-      "key": "🔑",
-      "keyboard": "⌨️",
-      "keycap_ten": "🔟",
-      "kick_scooter": "🛴",
-      "kimono": "👘",
-      "kiss": "💋",
-      "kissing": "😗",
-      "kissing_cat": "😽",
-      "kissing_closed_eyes": "😚",
-      "kissing_heart": "😘",
-      "kissing_smiling_eyes": "😙",
-      "kiwi_fruit": "🥝",
-      "koala": "🐨",
-      "koko": "🈁",
-      "label": "🏷",
-      "large_blue_circle": "🔵",
-      "large_blue_diamond": "🔷",
-      "large_orange_diamond": "🔶",
-      "last_quarter_moon": "🌗",
-      "last_quarter_moon_with_face": "🌜",
-      "latin_cross": "✝️",
-      "laughing": "😆",
-      "leaves": "🍃",
-      "ledger": "📒",
-      "left_luggage": "🛅",
-      "left_right_arrow": "↔️",
-      "leftwards_arrow_with_hook": "↩️",
-      "lemon": "🍋",
-      "leo": "♌️",
-      "leopard": "🐆",
-      "level_slider": "🎚",
-      "libra": "♎️",
-      "light_rail": "🚈",
-      "link": "🔗",
-      "lion": "🦁",
-      "lips": "👄",
-      "lipstick": "💄",
-      "lizard": "🦎",
-      "lock": "🔒",
-      "lock_with_ink_pen": "🔏",
-      "lollipop": "🍭",
-      "loop": "➿",
-      "loud_sound": "🔊",
-      "loudspeaker": "📢",
-      "love_hotel": "🏩",
-      "love_letter": "💌",
-      "low_brightness": "🔅",
-      "lying_face": "🤥",
-      "m": "Ⓜ️",
-      "mag": "🔍",
-      "mag_right": "🔎",
-      "mahjong": "🀄️",
-      "mailbox": "📫",
-      "mailbox_closed": "📪",
-      "mailbox_with_mail": "📬",
-      "mailbox_with_no_mail": "📭",
-      "man": "👨",
-      "man_artist": "👨&zwj;🎨",
-      "man_astronaut": "👨&zwj;🚀",
-      "man_cartwheeling": "🤸&zwj;♂️",
-      "man_cook": "👨&zwj;🍳",
-      "man_dancing": "🕺",
-      "man_facepalming": "🤦&zwj;♂️",
-      "man_factory_worker": "👨&zwj;🏭",
-      "man_farmer": "👨&zwj;🌾",
-      "man_firefighter": "👨&zwj;🚒",
-      "man_health_worker": "👨&zwj;⚕️",
-      "man_in_tuxedo": "🤵",
-      "man_judge": "👨&zwj;⚖️",
-      "man_juggling": "🤹&zwj;♂️",
-      "man_mechanic": "👨&zwj;🔧",
-      "man_office_worker": "👨&zwj;💼",
-      "man_pilot": "👨&zwj;✈️",
-      "man_playing_handball": "🤾&zwj;♂️",
-      "man_playing_water_polo": "🤽&zwj;♂️",
-      "man_scientist": "👨&zwj;🔬",
-      "man_shrugging": "🤷&zwj;♂️",
-      "man_singer": "👨&zwj;🎤",
-      "man_student": "👨&zwj;🎓",
-      "man_teacher": "👨&zwj;🏫",
-      "man_technologist": "👨&zwj;💻",
-      "man_with_gua_pi_mao": "👲",
-      "man_with_turban": "👳",
-      "tangerine": "🍊",
-      "mans_shoe": "👞",
-      "mantelpiece_clock": "🕰",
-      "maple_leaf": "🍁",
-      "martial_arts_uniform": "🥋",
-      "mask": "😷",
-      "massage_woman": "💆",
-      "massage_man": "💆&zwj;♂️",
-      "meat_on_bone": "🍖",
-      "medal_military": "🎖",
-      "medal_sports": "🏅",
-      "mega": "📣",
-      "melon": "🍈",
-      "memo": "📝",
-      "men_wrestling": "🤼&zwj;♂️",
-      "menorah": "🕎",
-      "mens": "🚹",
-      "metal": "🤘",
-      "metro": "🚇",
-      "microphone": "🎤",
-      "microscope": "🔬",
-      "milk_glass": "🥛",
-      "milky_way": "🌌",
-      "minibus": "🚐",
-      "minidisc": "💽",
-      "mobile_phone_off": "📴",
-      "money_mouth_face": "🤑",
-      "money_with_wings": "💸",
-      "moneybag": "💰",
-      "monkey": "🐒",
-      "monkey_face": "🐵",
-      "monorail": "🚝",
-      "moon": "🌔",
-      "mortar_board": "🎓",
-      "mosque": "🕌",
-      "motor_boat": "🛥",
-      "motor_scooter": "🛵",
-      "motorcycle": "🏍",
-      "motorway": "🛣",
-      "mount_fuji": "🗻",
-      "mountain": "⛰",
-      "mountain_biking_man": "🚵",
-      "mountain_biking_woman": "🚵&zwj;♀️",
-      "mountain_cableway": "🚠",
-      "mountain_railway": "🚞",
-      "mountain_snow": "🏔",
-      "mouse": "🐭",
-      "mouse2": "🐁",
-      "movie_camera": "🎥",
-      "moyai": "🗿",
-      "mrs_claus": "🤶",
-      "muscle": "💪",
-      "mushroom": "🍄",
-      "musical_keyboard": "🎹",
-      "musical_note": "🎵",
-      "musical_score": "🎼",
-      "mute": "🔇",
-      "nail_care": "💅",
-      "name_badge": "📛",
-      "national_park": "🏞",
-      "nauseated_face": "🤢",
-      "necktie": "👔",
-      "negative_squared_cross_mark": "❎",
-      "nerd_face": "🤓",
-      "neutral_face": "😐",
-      "new": "🆕",
-      "new_moon": "🌑",
-      "new_moon_with_face": "🌚",
-      "newspaper": "📰",
-      "newspaper_roll": "🗞",
-      "next_track_button": "⏭",
-      "ng": "🆖",
-      "no_good_man": "🙅&zwj;♂️",
-      "no_good_woman": "🙅",
-      "night_with_stars": "🌃",
-      "no_bell": "🔕",
-      "no_bicycles": "🚳",
-      "no_entry": "⛔️",
-      "no_entry_sign": "🚫",
-      "no_mobile_phones": "📵",
-      "no_mouth": "😶",
-      "no_pedestrians": "🚷",
-      "no_smoking": "🚭",
-      "non-potable_water": "🚱",
-      "nose": "👃",
-      "notebook": "📓",
-      "notebook_with_decorative_cover": "📔",
-      "notes": "🎶",
-      "nut_and_bolt": "🔩",
-      "o": "⭕️",
-      "o2": "🅾️",
-      "ocean": "🌊",
-      "octopus": "🐙",
-      "oden": "🍢",
-      "office": "🏢",
-      "oil_drum": "🛢",
-      "ok": "🆗",
-      "ok_hand": "👌",
-      "ok_man": "🙆&zwj;♂️",
-      "ok_woman": "🙆",
-      "old_key": "🗝",
-      "older_man": "👴",
-      "older_woman": "👵",
-      "om": "🕉",
-      "on": "🔛",
-      "oncoming_automobile": "🚘",
-      "oncoming_bus": "🚍",
-      "oncoming_police_car": "🚔",
-      "oncoming_taxi": "🚖",
-      "open_file_folder": "📂",
-      "open_hands": "👐",
-      "open_mouth": "😮",
-      "open_umbrella": "☂️",
-      "ophiuchus": "⛎",
-      "orange_book": "📙",
-      "orthodox_cross": "☦️",
-      "outbox_tray": "📤",
-      "owl": "🦉",
-      "ox": "🐂",
-      "package": "📦",
-      "page_facing_up": "📄",
-      "page_with_curl": "📃",
-      "pager": "📟",
-      "paintbrush": "🖌",
-      "palm_tree": "🌴",
-      "pancakes": "🥞",
-      "panda_face": "🐼",
-      "paperclip": "📎",
-      "paperclips": "🖇",
-      "parasol_on_ground": "⛱",
-      "parking": "🅿️",
-      "part_alternation_mark": "〽️",
-      "partly_sunny": "⛅️",
-      "passenger_ship": "🛳",
-      "passport_control": "🛂",
-      "pause_button": "⏸",
-      "peace_symbol": "☮️",
-      "peach": "🍑",
-      "peanuts": "🥜",
-      "pear": "🍐",
-      "pen": "🖊",
-      "pencil2": "✏️",
-      "penguin": "🐧",
-      "pensive": "😔",
-      "performing_arts": "🎭",
-      "persevere": "😣",
-      "person_fencing": "🤺",
-      "pouting_woman": "🙎",
-      "phone": "☎️",
-      "pick": "⛏",
-      "pig": "🐷",
-      "pig2": "🐖",
-      "pig_nose": "🐽",
-      "pill": "💊",
-      "pineapple": "🍍",
-      "ping_pong": "🏓",
-      "pisces": "♓️",
-      "pizza": "🍕",
-      "place_of_worship": "🛐",
-      "plate_with_cutlery": "🍽",
-      "play_or_pause_button": "⏯",
-      "point_down": "👇",
-      "point_left": "👈",
-      "point_right": "👉",
-      "point_up": "☝️",
-      "point_up_2": "👆",
-      "police_car": "🚓",
-      "policewoman": "👮&zwj;♀️",
-      "poodle": "🐩",
-      "popcorn": "🍿",
-      "post_office": "🏣",
-      "postal_horn": "📯",
-      "postbox": "📮",
-      "potable_water": "🚰",
-      "potato": "🥔",
-      "pouch": "👝",
-      "poultry_leg": "🍗",
-      "pound": "💷",
-      "rage": "😡",
-      "pouting_cat": "😾",
-      "pouting_man": "🙎&zwj;♂️",
-      "pray": "🙏",
-      "prayer_beads": "📿",
-      "pregnant_woman": "🤰",
-      "previous_track_button": "⏮",
-      "prince": "🤴",
-      "princess": "👸",
-      "printer": "🖨",
-      "purple_heart": "💜",
-      "purse": "👛",
-      "pushpin": "📌",
-      "put_litter_in_its_place": "🚮",
-      "question": "❓",
-      "rabbit": "🐰",
-      "rabbit2": "🐇",
-      "racehorse": "🐎",
-      "racing_car": "🏎",
-      "radio": "📻",
-      "radio_button": "🔘",
-      "radioactive": "☢️",
-      "railway_car": "🚃",
-      "railway_track": "🛤",
-      "rainbow": "🌈",
-      "rainbow_flag": "🏳️&zwj;🌈",
-      "raised_back_of_hand": "🤚",
-      "raised_hand_with_fingers_splayed": "🖐",
-      "raised_hands": "🙌",
-      "raising_hand_woman": "🙋",
-      "raising_hand_man": "🙋&zwj;♂️",
-      "ram": "🐏",
-      "ramen": "🍜",
-      "rat": "🐀",
-      "record_button": "⏺",
-      "recycle": "♻️",
-      "red_circle": "🔴",
-      "registered": "®️",
-      "relaxed": "☺️",
-      "relieved": "😌",
-      "reminder_ribbon": "🎗",
-      "repeat": "🔁",
-      "repeat_one": "🔂",
-      "rescue_worker_helmet": "⛑",
-      "restroom": "🚻",
-      "revolving_hearts": "💞",
-      "rewind": "⏪",
-      "rhinoceros": "🦏",
-      "ribbon": "🎀",
-      "rice": "🍚",
-      "rice_ball": "🍙",
-      "rice_cracker": "🍘",
-      "rice_scene": "🎑",
-      "right_anger_bubble": "🗯",
-      "ring": "💍",
-      "robot": "🤖",
-      "rocket": "🚀",
-      "rofl": "🤣",
-      "roll_eyes": "🙄",
-      "roller_coaster": "🎢",
-      "rooster": "🐓",
-      "rose": "🌹",
-      "rosette": "🏵",
-      "rotating_light": "🚨",
-      "round_pushpin": "📍",
-      "rowing_man": "🚣",
-      "rowing_woman": "🚣&zwj;♀️",
-      "rugby_football": "🏉",
-      "running_man": "🏃",
-      "running_shirt_with_sash": "🎽",
-      "running_woman": "🏃&zwj;♀️",
-      "sa": "🈂️",
-      "sagittarius": "♐️",
-      "sake": "🍶",
-      "sandal": "👡",
-      "santa": "🎅",
-      "satellite": "📡",
-      "saxophone": "🎷",
-      "school": "🏫",
-      "school_satchel": "🎒",
-      "scissors": "✂️",
-      "scorpion": "🦂",
-      "scorpius": "♏️",
-      "scream": "😱",
-      "scream_cat": "🙀",
-      "scroll": "📜",
-      "seat": "💺",
-      "secret": "㊙️",
-      "see_no_evil": "🙈",
-      "seedling": "🌱",
-      "selfie": "🤳",
-      "shallow_pan_of_food": "🥘",
-      "shamrock": "☘️",
-      "shark": "🦈",
-      "shaved_ice": "🍧",
-      "sheep": "🐑",
-      "shell": "🐚",
-      "shield": "🛡",
-      "shinto_shrine": "⛩",
-      "ship": "🚢",
-      "shirt": "👕",
-      "shopping": "🛍",
-      "shopping_cart": "🛒",
-      "shower": "🚿",
-      "shrimp": "🦐",
-      "signal_strength": "📶",
-      "six_pointed_star": "🔯",
-      "ski": "🎿",
-      "skier": "⛷",
-      "skull": "💀",
-      "skull_and_crossbones": "☠️",
-      "sleeping": "😴",
-      "sleeping_bed": "🛌",
-      "sleepy": "😪",
-      "slightly_frowning_face": "🙁",
-      "slightly_smiling_face": "🙂",
-      "slot_machine": "🎰",
-      "small_airplane": "🛩",
-      "small_blue_diamond": "🔹",
-      "small_orange_diamond": "🔸",
-      "small_red_triangle": "🔺",
-      "small_red_triangle_down": "🔻",
-      "smile": "😄",
-      "smile_cat": "😸",
-      "smiley": "😃",
-      "smiley_cat": "😺",
-      "smiling_imp": "😈",
-      "smirk": "😏",
-      "smirk_cat": "😼",
-      "smoking": "🚬",
-      "snail": "🐌",
-      "snake": "🐍",
-      "sneezing_face": "🤧",
-      "snowboarder": "🏂",
-      "snowflake": "❄️",
-      "snowman": "⛄️",
-      "snowman_with_snow": "☃️",
-      "sob": "😭",
-      "soccer": "⚽️",
-      "soon": "🔜",
-      "sos": "🆘",
-      "sound": "🔉",
-      "space_invader": "👾",
-      "spades": "♠️",
-      "spaghetti": "🍝",
-      "sparkle": "❇️",
-      "sparkler": "🎇",
-      "sparkles": "✨",
-      "sparkling_heart": "💖",
-      "speak_no_evil": "🙊",
-      "speaker": "🔈",
-      "speaking_head": "🗣",
-      "speech_balloon": "💬",
-      "speedboat": "🚤",
-      "spider": "🕷",
-      "spider_web": "🕸",
-      "spiral_calendar": "🗓",
-      "spiral_notepad": "🗒",
-      "spoon": "🥄",
-      "squid": "🦑",
-      "stadium": "🏟",
-      "star": "⭐️",
-      "star2": "🌟",
-      "star_and_crescent": "☪️",
-      "star_of_david": "✡️",
-      "stars": "🌠",
-      "station": "🚉",
-      "statue_of_liberty": "🗽",
-      "steam_locomotive": "🚂",
-      "stew": "🍲",
-      "stop_button": "⏹",
-      "stop_sign": "🛑",
-      "stopwatch": "⏱",
-      "straight_ruler": "📏",
-      "strawberry": "🍓",
-      "stuck_out_tongue": "😛",
-      "stuck_out_tongue_closed_eyes": "😝",
-      "stuck_out_tongue_winking_eye": "😜",
-      "studio_microphone": "🎙",
-      "stuffed_flatbread": "🥙",
-      "sun_behind_large_cloud": "🌥",
-      "sun_behind_rain_cloud": "🌦",
-      "sun_behind_small_cloud": "🌤",
-      "sun_with_face": "🌞",
-      "sunflower": "🌻",
-      "sunglasses": "😎",
-      "sunny": "☀️",
-      "sunrise": "🌅",
-      "sunrise_over_mountains": "🌄",
-      "surfing_man": "🏄",
-      "surfing_woman": "🏄&zwj;♀️",
-      "sushi": "🍣",
-      "suspension_railway": "🚟",
-      "sweat": "😓",
-      "sweat_drops": "💦",
-      "sweat_smile": "😅",
-      "sweet_potato": "🍠",
-      "swimming_man": "🏊",
-      "swimming_woman": "🏊&zwj;♀️",
-      "symbols": "🔣",
-      "synagogue": "🕍",
-      "syringe": "💉",
-      "taco": "🌮",
-      "tada": "🎉",
-      "tanabata_tree": "🎋",
-      "taurus": "♉️",
-      "taxi": "🚕",
-      "tea": "🍵",
-      "telephone_receiver": "📞",
-      "telescope": "🔭",
-      "tennis": "🎾",
-      "tent": "⛺️",
-      "thermometer": "🌡",
-      "thinking": "🤔",
-      "thought_balloon": "💭",
-      "ticket": "🎫",
-      "tickets": "🎟",
-      "tiger": "🐯",
-      "tiger2": "🐅",
-      "timer_clock": "⏲",
-      "tipping_hand_man": "💁&zwj;♂️",
-      "tired_face": "😫",
-      "tm": "™️",
-      "toilet": "🚽",
-      "tokyo_tower": "🗼",
-      "tomato": "🍅",
-      "tongue": "👅",
-      "top": "🔝",
-      "tophat": "🎩",
-      "tornado": "🌪",
-      "trackball": "🖲",
-      "tractor": "🚜",
-      "traffic_light": "🚥",
-      "train": "🚋",
-      "train2": "🚆",
-      "tram": "🚊",
-      "triangular_flag_on_post": "🚩",
-      "triangular_ruler": "📐",
-      "trident": "🔱",
-      "triumph": "😤",
-      "trolleybus": "🚎",
-      "trophy": "🏆",
-      "tropical_drink": "🍹",
-      "tropical_fish": "🐠",
-      "truck": "🚚",
-      "trumpet": "🎺",
-      "tulip": "🌷",
-      "tumbler_glass": "🥃",
-      "turkey": "🦃",
-      "turtle": "🐢",
-      "tv": "📺",
-      "twisted_rightwards_arrows": "🔀",
-      "two_hearts": "💕",
-      "two_men_holding_hands": "👬",
-      "two_women_holding_hands": "👭",
-      "u5272": "🈹",
-      "u5408": "🈴",
-      "u55b6": "🈺",
-      "u6307": "🈯️",
-      "u6708": "🈷️",
-      "u6709": "🈶",
-      "u6e80": "🈵",
-      "u7121": "🈚️",
-      "u7533": "🈸",
-      "u7981": "🈲",
-      "u7a7a": "🈳",
-      "umbrella": "☔️",
-      "unamused": "😒",
-      "underage": "🔞",
-      "unicorn": "🦄",
-      "unlock": "🔓",
-      "up": "🆙",
-      "upside_down_face": "🙃",
-      "v": "✌️",
-      "vertical_traffic_light": "🚦",
-      "vhs": "📼",
-      "vibration_mode": "📳",
-      "video_camera": "📹",
-      "video_game": "🎮",
-      "violin": "🎻",
-      "virgo": "♍️",
-      "volcano": "🌋",
-      "volleyball": "🏐",
-      "vs": "🆚",
-      "vulcan_salute": "🖖",
-      "walking_man": "🚶",
-      "walking_woman": "🚶&zwj;♀️",
-      "waning_crescent_moon": "🌘",
-      "waning_gibbous_moon": "🌖",
-      "warning": "⚠️",
-      "wastebasket": "🗑",
-      "watch": "⌚️",
-      "water_buffalo": "🐃",
-      "watermelon": "🍉",
-      "wave": "👋",
-      "wavy_dash": "〰️",
-      "waxing_crescent_moon": "🌒",
-      "wc": "🚾",
-      "weary": "😩",
-      "wedding": "💒",
-      "weight_lifting_man": "🏋️",
-      "weight_lifting_woman": "🏋️&zwj;♀️",
-      "whale": "🐳",
-      "whale2": "🐋",
-      "wheel_of_dharma": "☸️",
-      "wheelchair": "♿️",
-      "white_check_mark": "✅",
-      "white_circle": "⚪️",
-      "white_flag": "🏳️",
-      "white_flower": "💮",
-      "white_large_square": "⬜️",
-      "white_medium_small_square": "◽️",
-      "white_medium_square": "◻️",
-      "white_small_square": "▫️",
-      "white_square_button": "🔳",
-      "wilted_flower": "🥀",
-      "wind_chime": "🎐",
-      "wind_face": "🌬",
-      "wine_glass": "🍷",
-      "wink": "😉",
-      "wolf": "🐺",
-      "woman": "👩",
-      "woman_artist": "👩&zwj;🎨",
-      "woman_astronaut": "👩&zwj;🚀",
-      "woman_cartwheeling": "🤸&zwj;♀️",
-      "woman_cook": "👩&zwj;🍳",
-      "woman_facepalming": "🤦&zwj;♀️",
-      "woman_factory_worker": "👩&zwj;🏭",
-      "woman_farmer": "👩&zwj;🌾",
-      "woman_firefighter": "👩&zwj;🚒",
-      "woman_health_worker": "👩&zwj;⚕️",
-      "woman_judge": "👩&zwj;⚖️",
-      "woman_juggling": "🤹&zwj;♀️",
-      "woman_mechanic": "👩&zwj;🔧",
-      "woman_office_worker": "👩&zwj;💼",
-      "woman_pilot": "👩&zwj;✈️",
-      "woman_playing_handball": "🤾&zwj;♀️",
-      "woman_playing_water_polo": "🤽&zwj;♀️",
-      "woman_scientist": "👩&zwj;🔬",
-      "woman_shrugging": "🤷&zwj;♀️",
-      "woman_singer": "👩&zwj;🎤",
-      "woman_student": "👩&zwj;🎓",
-      "woman_teacher": "👩&zwj;🏫",
-      "woman_technologist": "👩&zwj;💻",
-      "woman_with_turban": "👳&zwj;♀️",
-      "womans_clothes": "👚",
-      "womans_hat": "👒",
-      "women_wrestling": "🤼&zwj;♀️",
-      "womens": "🚺",
-      "world_map": "🗺",
-      "worried": "😟",
-      "wrench": "🔧",
-      "writing_hand": "✍️",
-      "x": "❌",
-      "yellow_heart": "💛",
-      "yen": "💴",
-      "yin_yang": "☯️",
-      "yum": "😋",
-      "zap": "⚡️",
-      "zipper_mouth_face": "🤐",
-      "zzz": "💤",
-      /* special emojis :P */
-      "octocat": '<img alt=":octocat:" height="20" width="20" align="absmiddle" src="https://assets-cdn.github.com/images/icons/emoji/octocat.png">',
-      "showdown": `<span style="font-family: 'Anonymous Pro', monospace; text-decoration: underline; text-decoration-style: dashed; text-decoration-color: #3e8b8a;text-underline-position: under;">S</span>`
-    };
-    showdown2.Converter = function(converterOptions) {
-      var options = {}, langExtensions = [], outputModifiers = [], listeners = {}, setConvFlavor = setFlavor, metadata = {
-        parsed: {},
-        raw: "",
-        format: ""
-      };
-      _constructor();
-      function _constructor() {
-        converterOptions = converterOptions || {};
-        for (var gOpt in globalOptions) {
-          if (globalOptions.hasOwnProperty(gOpt)) {
-            options[gOpt] = globalOptions[gOpt];
-          }
-        }
-        if (typeof converterOptions === "object") {
-          for (var opt in converterOptions) {
-            if (converterOptions.hasOwnProperty(opt)) {
-              options[opt] = converterOptions[opt];
-            }
-          }
-        } else {
-          throw Error("Converter expects the passed parameter to be an object, but " + typeof converterOptions + " was passed instead.");
-        }
-        if (options.extensions) {
-          showdown2.helper.forEach(options.extensions, _parseExtension);
-        }
-      }
-      function _parseExtension(ext, name) {
-        name = name || null;
-        if (showdown2.helper.isString(ext)) {
-          ext = showdown2.helper.stdExtName(ext);
-          name = ext;
-          if (showdown2.extensions[ext]) {
-            console.warn("DEPRECATION WARNING: " + ext + " is an old extension that uses a deprecated loading method.Please inform the developer that the extension should be updated!");
-            legacyExtensionLoading(showdown2.extensions[ext], ext);
-            return;
-          } else if (!showdown2.helper.isUndefined(extensions[ext])) {
-            ext = extensions[ext];
-          } else {
-            throw Error('Extension "' + ext + '" could not be loaded. It was either not found or is not a valid extension.');
-          }
-        }
-        if (typeof ext === "function") {
-          ext = ext();
-        }
-        if (!showdown2.helper.isArray(ext)) {
-          ext = [ext];
-        }
-        var validExt = validate(ext, name);
-        if (!validExt.valid) {
-          throw Error(validExt.error);
-        }
-        for (var i = 0; i < ext.length; ++i) {
-          switch (ext[i].type) {
-            case "lang":
-              langExtensions.push(ext[i]);
-              break;
-            case "output":
-              outputModifiers.push(ext[i]);
-              break;
-          }
-          if (ext[i].hasOwnProperty("listeners")) {
-            for (var ln in ext[i].listeners) {
-              if (ext[i].listeners.hasOwnProperty(ln)) {
-                listen(ln, ext[i].listeners[ln]);
-              }
-            }
-          }
-        }
-      }
-      function legacyExtensionLoading(ext, name) {
-        if (typeof ext === "function") {
-          ext = ext(new showdown2.Converter());
-        }
-        if (!showdown2.helper.isArray(ext)) {
-          ext = [ext];
-        }
-        var valid = validate(ext, name);
-        if (!valid.valid) {
-          throw Error(valid.error);
-        }
-        for (var i = 0; i < ext.length; ++i) {
-          switch (ext[i].type) {
-            case "lang":
-              langExtensions.push(ext[i]);
-              break;
-            case "output":
-              outputModifiers.push(ext[i]);
-              break;
-            default:
-              throw Error("Extension loader error: Type unrecognized!!!");
-          }
-        }
-      }
-      function listen(name, callback) {
-        if (!showdown2.helper.isString(name)) {
-          throw Error("Invalid argument in converter.listen() method: name must be a string, but " + typeof name + " given");
-        }
-        if (typeof callback !== "function") {
-          throw Error("Invalid argument in converter.listen() method: callback must be a function, but " + typeof callback + " given");
-        }
-        if (!listeners.hasOwnProperty(name)) {
-          listeners[name] = [];
-        }
-        listeners[name].push(callback);
-      }
-      function rTrimInputText(text) {
-        var rsp = text.match(/^\s*/)[0].length, rgx = new RegExp("^\\s{0," + rsp + "}", "gm");
-        return text.replace(rgx, "");
-      }
-      this._dispatch = function dispatch(evtName, text, options2, globals) {
-        if (listeners.hasOwnProperty(evtName)) {
-          for (var ei = 0; ei < listeners[evtName].length; ++ei) {
-            var nText = listeners[evtName][ei](evtName, text, this, options2, globals);
-            if (nText && typeof nText !== "undefined") {
-              text = nText;
-            }
-          }
-        }
-        return text;
-      };
-      this.listen = function(name, callback) {
-        listen(name, callback);
-        return this;
-      };
-      this.makeHtml = function(text) {
-        if (!text) {
-          return text;
-        }
-        var globals = {
-          gHtmlBlocks: [],
-          gHtmlMdBlocks: [],
-          gHtmlSpans: [],
-          gUrls: {},
-          gTitles: {},
-          gDimensions: {},
-          gListLevel: 0,
-          hashLinkCounts: {},
-          langExtensions,
-          outputModifiers,
-          converter: this,
-          ghCodeBlocks: [],
-          metadata: {
-            parsed: {},
-            raw: "",
-            format: ""
-          }
-        };
-        text = text.replace(/¨/g, "¨T");
-        text = text.replace(/\$/g, "¨D");
-        text = text.replace(/\r\n/g, "\n");
-        text = text.replace(/\r/g, "\n");
-        text = text.replace(/\u00A0/g, "&nbsp;");
-        if (options.smartIndentationFix) {
-          text = rTrimInputText(text);
-        }
-        text = "\n\n" + text + "\n\n";
-        text = showdown2.subParser("detab")(text, options, globals);
-        text = text.replace(/^[ \t]+$/mg, "");
-        showdown2.helper.forEach(langExtensions, function(ext) {
-          text = showdown2.subParser("runExtension")(ext, text, options, globals);
-        });
-        text = showdown2.subParser("metadata")(text, options, globals);
-        text = showdown2.subParser("hashPreCodeTags")(text, options, globals);
-        text = showdown2.subParser("githubCodeBlocks")(text, options, globals);
-        text = showdown2.subParser("hashHTMLBlocks")(text, options, globals);
-        text = showdown2.subParser("hashCodeTags")(text, options, globals);
-        text = showdown2.subParser("stripLinkDefinitions")(text, options, globals);
-        text = showdown2.subParser("blockGamut")(text, options, globals);
-        text = showdown2.subParser("unhashHTMLSpans")(text, options, globals);
-        text = showdown2.subParser("unescapeSpecialChars")(text, options, globals);
-        text = text.replace(/¨D/g, "$$");
-        text = text.replace(/¨T/g, "¨");
-        text = showdown2.subParser("completeHTMLDocument")(text, options, globals);
-        showdown2.helper.forEach(outputModifiers, function(ext) {
-          text = showdown2.subParser("runExtension")(ext, text, options, globals);
-        });
-        metadata = globals.metadata;
-        return text;
-      };
-      this.makeMarkdown = this.makeMd = function(src, HTMLParser) {
-        src = src.replace(/\r\n/g, "\n");
-        src = src.replace(/\r/g, "\n");
-        src = src.replace(/>[ \t]+</, ">¨NBSP;<");
-        if (!HTMLParser) {
-          if (window && window.document) {
-            HTMLParser = window.document;
-          } else {
-            throw new Error("HTMLParser is undefined. If in a webworker or nodejs environment, you need to provide a WHATWG DOM and HTML such as JSDOM");
-          }
-        }
-        var doc = HTMLParser.createElement("div");
-        doc.innerHTML = src;
-        var globals = {
-          preList: substitutePreCodeTags(doc)
-        };
-        clean(doc);
-        var nodes = doc.childNodes, mdDoc = "";
-        for (var i = 0; i < nodes.length; i++) {
-          mdDoc += showdown2.subParser("makeMarkdown.node")(nodes[i], globals);
-        }
-        function clean(node) {
-          for (var n2 = 0; n2 < node.childNodes.length; ++n2) {
-            var child = node.childNodes[n2];
-            if (child.nodeType === 3) {
-              if (!/\S/.test(child.nodeValue) && !/^[ ]+$/.test(child.nodeValue)) {
-                node.removeChild(child);
-                --n2;
-              } else {
-                child.nodeValue = child.nodeValue.split("\n").join(" ");
-                child.nodeValue = child.nodeValue.replace(/(\s)+/g, "$1");
-              }
-            } else if (child.nodeType === 1) {
-              clean(child);
-            }
-          }
-        }
-        function substitutePreCodeTags(doc2) {
-          var pres = doc2.querySelectorAll("pre"), presPH = [];
-          for (var i2 = 0; i2 < pres.length; ++i2) {
-            if (pres[i2].childElementCount === 1 && pres[i2].firstChild.tagName.toLowerCase() === "code") {
-              var content = pres[i2].firstChild.innerHTML.trim(), language = pres[i2].firstChild.getAttribute("data-language") || "";
-              if (language === "") {
-                var classes = pres[i2].firstChild.className.split(" ");
-                for (var c2 = 0; c2 < classes.length; ++c2) {
-                  var matches = classes[c2].match(/^language-(.+)$/);
-                  if (matches !== null) {
-                    language = matches[1];
-                    break;
-                  }
-                }
-              }
-              content = showdown2.helper.unescapeHTMLEntities(content);
-              presPH.push(content);
-              pres[i2].outerHTML = '<precode language="' + language + '" precodenum="' + i2.toString() + '"></precode>';
-            } else {
-              presPH.push(pres[i2].innerHTML);
-              pres[i2].innerHTML = "";
-              pres[i2].setAttribute("prenum", i2.toString());
-            }
-          }
-          return presPH;
-        }
-        return mdDoc;
-      };
-      this.setOption = function(key, value) {
-        options[key] = value;
-      };
-      this.getOption = function(key) {
-        return options[key];
-      };
-      this.getOptions = function() {
-        return options;
-      };
-      this.addExtension = function(extension, name) {
-        name = name || null;
-        _parseExtension(extension, name);
-      };
-      this.useExtension = function(extensionName) {
-        _parseExtension(extensionName);
-      };
-      this.setFlavor = function(name) {
-        if (!flavor.hasOwnProperty(name)) {
-          throw Error(name + " flavor was not found");
-        }
-        var preset = flavor[name];
-        setConvFlavor = name;
-        for (var option in preset) {
-          if (preset.hasOwnProperty(option)) {
-            options[option] = preset[option];
-          }
-        }
-      };
-      this.getFlavor = function() {
-        return setConvFlavor;
-      };
-      this.removeExtension = function(extension) {
-        if (!showdown2.helper.isArray(extension)) {
-          extension = [extension];
-        }
-        for (var a = 0; a < extension.length; ++a) {
-          var ext = extension[a];
-          for (var i = 0; i < langExtensions.length; ++i) {
-            if (langExtensions[i] === ext) {
-              langExtensions.splice(i, 1);
-            }
-          }
-          for (var ii = 0; ii < outputModifiers.length; ++ii) {
-            if (outputModifiers[ii] === ext) {
-              outputModifiers.splice(ii, 1);
-            }
-          }
-        }
-      };
-      this.getAllExtensions = function() {
-        return {
-          language: langExtensions,
-          output: outputModifiers
-        };
-      };
-      this.getMetadata = function(raw) {
-        if (raw) {
-          return metadata.raw;
-        } else {
-          return metadata.parsed;
-        }
-      };
-      this.getMetadataFormat = function() {
-        return metadata.format;
-      };
-      this._setMetadataPair = function(key, value) {
-        metadata.parsed[key] = value;
-      };
-      this._setMetadataFormat = function(format) {
-        metadata.format = format;
-      };
-      this._setMetadataRaw = function(raw) {
-        metadata.raw = raw;
-      };
-    };
-    showdown2.subParser("anchors", function(text, options, globals) {
-      text = globals.converter._dispatch("anchors.before", text, options, globals);
-      var writeAnchorTag = function(wholeMatch, linkText, linkId, url, m5, m6, title) {
-        if (showdown2.helper.isUndefined(title)) {
-          title = "";
-        }
-        linkId = linkId.toLowerCase();
-        if (wholeMatch.search(/\(<?\s*>? ?(['"].*['"])?\)$/m) > -1) {
-          url = "";
-        } else if (!url) {
-          if (!linkId) {
-            linkId = linkText.toLowerCase().replace(/ ?\n/g, " ");
-          }
-          url = "#" + linkId;
-          if (!showdown2.helper.isUndefined(globals.gUrls[linkId])) {
-            url = globals.gUrls[linkId];
-            if (!showdown2.helper.isUndefined(globals.gTitles[linkId])) {
-              title = globals.gTitles[linkId];
-            }
-          } else {
-            return wholeMatch;
-          }
-        }
-        url = url.replace(showdown2.helper.regexes.asteriskDashAndColon, showdown2.helper.escapeCharactersCallback);
-        var result = '<a href="' + url + '"';
-        if (title !== "" && title !== null) {
-          title = title.replace(/"/g, "&quot;");
-          title = title.replace(showdown2.helper.regexes.asteriskDashAndColon, showdown2.helper.escapeCharactersCallback);
-          result += ' title="' + title + '"';
-        }
-        if (options.openLinksInNewWindow && !/^#/.test(url)) {
-          result += ' rel="noopener noreferrer" target="¨E95Eblank"';
-        }
-        result += ">" + linkText + "</a>";
-        return result;
-      };
-      text = text.replace(/\[((?:\[[^\]]*]|[^\[\]])*)] ?(?:\n *)?\[(.*?)]()()()()/g, writeAnchorTag);
-      text = text.replace(
-        /\[((?:\[[^\]]*]|[^\[\]])*)]()[ \t]*\([ \t]?<([^>]*)>(?:[ \t]*((["'])([^"]*?)\5))?[ \t]?\)/g,
-        writeAnchorTag
-      );
-      text = text.replace(
-        /\[((?:\[[^\]]*]|[^\[\]])*)]()[ \t]*\([ \t]?<?([\S]+?(?:\([\S]*?\)[\S]*?)?)>?(?:[ \t]*((["'])([^"]*?)\5))?[ \t]?\)/g,
-        writeAnchorTag
-      );
-      text = text.replace(/\[([^\[\]]+)]()()()()()/g, writeAnchorTag);
-      if (options.ghMentions) {
-        text = text.replace(/(^|\s)(\\)?(@([a-z\d]+(?:[a-z\d.-]+?[a-z\d]+)*))/gmi, function(wm, st, escape, mentions, username) {
-          if (escape === "\\") {
-            return st + mentions;
-          }
-          if (!showdown2.helper.isString(options.ghMentionsLink)) {
-            throw new Error("ghMentionsLink option must be a string");
-          }
-          var lnk = options.ghMentionsLink.replace(/\{u}/g, username), target = "";
-          if (options.openLinksInNewWindow) {
-            target = ' rel="noopener noreferrer" target="¨E95Eblank"';
-          }
-          return st + '<a href="' + lnk + '"' + target + ">" + mentions + "</a>";
-        });
-      }
-      text = globals.converter._dispatch("anchors.after", text, options, globals);
-      return text;
-    });
-    var simpleURLRegex = /([*~_]+|\b)(((https?|ftp|dict):\/\/|www\.)[^'">\s]+?\.[^'">\s]+?)()(\1)?(?=\s|$)(?!["<>])/gi, simpleURLRegex2 = /([*~_]+|\b)(((https?|ftp|dict):\/\/|www\.)[^'">\s]+\.[^'">\s]+?)([.!?,()\[\]])?(\1)?(?=\s|$)(?!["<>])/gi, delimUrlRegex = /()<(((https?|ftp|dict):\/\/|www\.)[^'">\s]+)()>()/gi, simpleMailRegex = /(^|\s)(?:mailto:)?([A-Za-z0-9!#$%&'*+-/=?^_`{|}~.]+@[-a-z0-9]+(\.[-a-z0-9]+)*\.[a-z]+)(?=$|\s)/gmi, delimMailRegex = /<()(?:mailto:)?([-.\w]+@[-a-z0-9]+(\.[-a-z0-9]+)*\.[a-z]+)>/gi, replaceLink = function(options) {
-      return function(wm, leadingMagicChars, link, m2, m3, trailingPunctuation, trailingMagicChars) {
-        link = link.replace(showdown2.helper.regexes.asteriskDashAndColon, showdown2.helper.escapeCharactersCallback);
-        var lnkTxt = link, append = "", target = "", lmc = leadingMagicChars || "", tmc = trailingMagicChars || "";
-        if (/^www\./i.test(link)) {
-          link = link.replace(/^www\./i, "http://www.");
-        }
-        if (options.excludeTrailingPunctuationFromURLs && trailingPunctuation) {
-          append = trailingPunctuation;
-        }
-        if (options.openLinksInNewWindow) {
-          target = ' rel="noopener noreferrer" target="¨E95Eblank"';
-        }
-        return lmc + '<a href="' + link + '"' + target + ">" + lnkTxt + "</a>" + append + tmc;
-      };
-    }, replaceMail = function(options, globals) {
-      return function(wholeMatch, b2, mail) {
-        var href = "mailto:";
-        b2 = b2 || "";
-        mail = showdown2.subParser("unescapeSpecialChars")(mail, options, globals);
-        if (options.encodeEmails) {
-          href = showdown2.helper.encodeEmailAddress(href + mail);
-          mail = showdown2.helper.encodeEmailAddress(mail);
-        } else {
-          href = href + mail;
-        }
-        return b2 + '<a href="' + href + '">' + mail + "</a>";
-      };
-    };
-    showdown2.subParser("autoLinks", function(text, options, globals) {
-      text = globals.converter._dispatch("autoLinks.before", text, options, globals);
-      text = text.replace(delimUrlRegex, replaceLink(options));
-      text = text.replace(delimMailRegex, replaceMail(options, globals));
-      text = globals.converter._dispatch("autoLinks.after", text, options, globals);
-      return text;
-    });
-    showdown2.subParser("simplifiedAutoLinks", function(text, options, globals) {
-      if (!options.simplifiedAutoLink) {
-        return text;
-      }
-      text = globals.converter._dispatch("simplifiedAutoLinks.before", text, options, globals);
-      if (options.excludeTrailingPunctuationFromURLs) {
-        text = text.replace(simpleURLRegex2, replaceLink(options));
-      } else {
-        text = text.replace(simpleURLRegex, replaceLink(options));
-      }
-      text = text.replace(simpleMailRegex, replaceMail(options, globals));
-      text = globals.converter._dispatch("simplifiedAutoLinks.after", text, options, globals);
-      return text;
-    });
-    showdown2.subParser("blockGamut", function(text, options, globals) {
-      text = globals.converter._dispatch("blockGamut.before", text, options, globals);
-      text = showdown2.subParser("blockQuotes")(text, options, globals);
-      text = showdown2.subParser("headers")(text, options, globals);
-      text = showdown2.subParser("horizontalRule")(text, options, globals);
-      text = showdown2.subParser("lists")(text, options, globals);
-      text = showdown2.subParser("codeBlocks")(text, options, globals);
-      text = showdown2.subParser("tables")(text, options, globals);
-      text = showdown2.subParser("hashHTMLBlocks")(text, options, globals);
-      text = showdown2.subParser("paragraphs")(text, options, globals);
-      text = globals.converter._dispatch("blockGamut.after", text, options, globals);
-      return text;
-    });
-    showdown2.subParser("blockQuotes", function(text, options, globals) {
-      text = globals.converter._dispatch("blockQuotes.before", text, options, globals);
-      text = text + "\n\n";
-      var rgx = /(^ {0,3}>[ \t]?.+\n(.+\n)*\n*)+/gm;
-      if (options.splitAdjacentBlockquotes) {
-        rgx = /^ {0,3}>[\s\S]*?(?:\n\n)/gm;
-      }
-      text = text.replace(rgx, function(bq) {
-        bq = bq.replace(/^[ \t]*>[ \t]?/gm, "");
-        bq = bq.replace(/¨0/g, "");
-        bq = bq.replace(/^[ \t]+$/gm, "");
-        bq = showdown2.subParser("githubCodeBlocks")(bq, options, globals);
-        bq = showdown2.subParser("blockGamut")(bq, options, globals);
-        bq = bq.replace(/(^|\n)/g, "$1  ");
-        bq = bq.replace(/(\s*<pre>[^\r]+?<\/pre>)/gm, function(wholeMatch, m1) {
-          var pre = m1;
-          pre = pre.replace(/^  /mg, "¨0");
-          pre = pre.replace(/¨0/g, "");
-          return pre;
-        });
-        return showdown2.subParser("hashBlock")("<blockquote>\n" + bq + "\n</blockquote>", options, globals);
-      });
-      text = globals.converter._dispatch("blockQuotes.after", text, options, globals);
-      return text;
-    });
-    showdown2.subParser("codeBlocks", function(text, options, globals) {
-      text = globals.converter._dispatch("codeBlocks.before", text, options, globals);
-      text += "¨0";
-      var pattern = /(?:\n\n|^)((?:(?:[ ]{4}|\t).*\n+)+)(\n*[ ]{0,3}[^ \t\n]|(?=¨0))/g;
-      text = text.replace(pattern, function(wholeMatch, m1, m2) {
-        var codeblock = m1, nextChar = m2, end2 = "\n";
-        codeblock = showdown2.subParser("outdent")(codeblock, options, globals);
-        codeblock = showdown2.subParser("encodeCode")(codeblock, options, globals);
-        codeblock = showdown2.subParser("detab")(codeblock, options, globals);
-        codeblock = codeblock.replace(/^\n+/g, "");
-        codeblock = codeblock.replace(/\n+$/g, "");
-        if (options.omitExtraWLInCodeBlocks) {
-          end2 = "";
-        }
-        codeblock = "<pre><code>" + codeblock + end2 + "</code></pre>";
-        return showdown2.subParser("hashBlock")(codeblock, options, globals) + nextChar;
-      });
-      text = text.replace(/¨0/, "");
-      text = globals.converter._dispatch("codeBlocks.after", text, options, globals);
-      return text;
-    });
-    showdown2.subParser("codeSpans", function(text, options, globals) {
-      text = globals.converter._dispatch("codeSpans.before", text, options, globals);
-      if (typeof text === "undefined") {
-        text = "";
-      }
-      text = text.replace(
-        /(^|[^\\])(`+)([^\r]*?[^`])\2(?!`)/gm,
-        function(wholeMatch, m1, m2, m3) {
-          var c2 = m3;
-          c2 = c2.replace(/^([ \t]*)/g, "");
-          c2 = c2.replace(/[ \t]*$/g, "");
-          c2 = showdown2.subParser("encodeCode")(c2, options, globals);
-          c2 = m1 + "<code>" + c2 + "</code>";
-          c2 = showdown2.subParser("hashHTMLSpans")(c2, options, globals);
-          return c2;
-        }
-      );
-      text = globals.converter._dispatch("codeSpans.after", text, options, globals);
-      return text;
-    });
-    showdown2.subParser("completeHTMLDocument", function(text, options, globals) {
-      if (!options.completeHTMLDocument) {
-        return text;
-      }
-      text = globals.converter._dispatch("completeHTMLDocument.before", text, options, globals);
-      var doctype = "html", doctypeParsed = "<!DOCTYPE HTML>\n", title = "", charset = '<meta charset="utf-8">\n', lang = "", metadata = "";
-      if (typeof globals.metadata.parsed.doctype !== "undefined") {
-        doctypeParsed = "<!DOCTYPE " + globals.metadata.parsed.doctype + ">\n";
-        doctype = globals.metadata.parsed.doctype.toString().toLowerCase();
-        if (doctype === "html" || doctype === "html5") {
-          charset = '<meta charset="utf-8">';
-        }
-      }
-      for (var meta in globals.metadata.parsed) {
-        if (globals.metadata.parsed.hasOwnProperty(meta)) {
-          switch (meta.toLowerCase()) {
-            case "doctype":
-              break;
-            case "title":
-              title = "<title>" + globals.metadata.parsed.title + "</title>\n";
-              break;
-            case "charset":
-              if (doctype === "html" || doctype === "html5") {
-                charset = '<meta charset="' + globals.metadata.parsed.charset + '">\n';
-              } else {
-                charset = '<meta name="charset" content="' + globals.metadata.parsed.charset + '">\n';
-              }
-              break;
-            case "language":
-            case "lang":
-              lang = ' lang="' + globals.metadata.parsed[meta] + '"';
-              metadata += '<meta name="' + meta + '" content="' + globals.metadata.parsed[meta] + '">\n';
-              break;
-            default:
-              metadata += '<meta name="' + meta + '" content="' + globals.metadata.parsed[meta] + '">\n';
-          }
-        }
-      }
-      text = doctypeParsed + "<html" + lang + ">\n<head>\n" + title + charset + metadata + "</head>\n<body>\n" + text.trim() + "\n</body>\n</html>";
-      text = globals.converter._dispatch("completeHTMLDocument.after", text, options, globals);
-      return text;
-    });
-    showdown2.subParser("detab", function(text, options, globals) {
-      text = globals.converter._dispatch("detab.before", text, options, globals);
-      text = text.replace(/\t(?=\t)/g, "    ");
-      text = text.replace(/\t/g, "¨A¨B");
-      text = text.replace(/¨B(.+?)¨A/g, function(wholeMatch, m1) {
-        var leadingText = m1, numSpaces = 4 - leadingText.length % 4;
-        for (var i = 0; i < numSpaces; i++) {
-          leadingText += " ";
-        }
-        return leadingText;
-      });
-      text = text.replace(/¨A/g, "    ");
-      text = text.replace(/¨B/g, "");
-      text = globals.converter._dispatch("detab.after", text, options, globals);
-      return text;
-    });
-    showdown2.subParser("ellipsis", function(text, options, globals) {
-      if (!options.ellipsis) {
-        return text;
-      }
-      text = globals.converter._dispatch("ellipsis.before", text, options, globals);
-      text = text.replace(/\.\.\./g, "…");
-      text = globals.converter._dispatch("ellipsis.after", text, options, globals);
-      return text;
-    });
-    showdown2.subParser("emoji", function(text, options, globals) {
-      if (!options.emoji) {
-        return text;
-      }
-      text = globals.converter._dispatch("emoji.before", text, options, globals);
-      var emojiRgx = /:([\S]+?):/g;
-      text = text.replace(emojiRgx, function(wm, emojiCode) {
-        if (showdown2.helper.emojis.hasOwnProperty(emojiCode)) {
-          return showdown2.helper.emojis[emojiCode];
-        }
-        return wm;
-      });
-      text = globals.converter._dispatch("emoji.after", text, options, globals);
-      return text;
-    });
-    showdown2.subParser("encodeAmpsAndAngles", function(text, options, globals) {
-      text = globals.converter._dispatch("encodeAmpsAndAngles.before", text, options, globals);
-      text = text.replace(/&(?!#?[xX]?(?:[0-9a-fA-F]+|\w+);)/g, "&amp;");
-      text = text.replace(/<(?![a-z\/?$!])/gi, "&lt;");
-      text = text.replace(/</g, "&lt;");
-      text = text.replace(/>/g, "&gt;");
-      text = globals.converter._dispatch("encodeAmpsAndAngles.after", text, options, globals);
-      return text;
-    });
-    showdown2.subParser("encodeBackslashEscapes", function(text, options, globals) {
-      text = globals.converter._dispatch("encodeBackslashEscapes.before", text, options, globals);
-      text = text.replace(/\\(\\)/g, showdown2.helper.escapeCharactersCallback);
-      text = text.replace(/\\([`*_{}\[\]()>#+.!~=|:-])/g, showdown2.helper.escapeCharactersCallback);
-      text = globals.converter._dispatch("encodeBackslashEscapes.after", text, options, globals);
-      return text;
-    });
-    showdown2.subParser("encodeCode", function(text, options, globals) {
-      text = globals.converter._dispatch("encodeCode.before", text, options, globals);
-      text = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/([*_{}\[\]\\=~-])/g, showdown2.helper.escapeCharactersCallback);
-      text = globals.converter._dispatch("encodeCode.after", text, options, globals);
-      return text;
-    });
-    showdown2.subParser("escapeSpecialCharsWithinTagAttributes", function(text, options, globals) {
-      text = globals.converter._dispatch("escapeSpecialCharsWithinTagAttributes.before", text, options, globals);
-      var tags = /<\/?[a-z\d_:-]+(?:[\s]+[\s\S]+?)?>/gi, comments = /<!(--(?:(?:[^>-]|-[^>])(?:[^-]|-[^-])*)--)>/gi;
-      text = text.replace(tags, function(wholeMatch) {
-        return wholeMatch.replace(/(.)<\/?code>(?=.)/g, "$1`").replace(/([\\`*_~=|])/g, showdown2.helper.escapeCharactersCallback);
-      });
-      text = text.replace(comments, function(wholeMatch) {
-        return wholeMatch.replace(/([\\`*_~=|])/g, showdown2.helper.escapeCharactersCallback);
-      });
-      text = globals.converter._dispatch("escapeSpecialCharsWithinTagAttributes.after", text, options, globals);
-      return text;
-    });
-    showdown2.subParser("githubCodeBlocks", function(text, options, globals) {
-      if (!options.ghCodeBlocks) {
-        return text;
-      }
-      text = globals.converter._dispatch("githubCodeBlocks.before", text, options, globals);
-      text += "¨0";
-      text = text.replace(/(?:^|\n)(?: {0,3})(```+|~~~+)(?: *)([^\s`~]*)\n([\s\S]*?)\n(?: {0,3})\1/g, function(wholeMatch, delim, language, codeblock) {
-        var end2 = options.omitExtraWLInCodeBlocks ? "" : "\n";
-        codeblock = showdown2.subParser("encodeCode")(codeblock, options, globals);
-        codeblock = showdown2.subParser("detab")(codeblock, options, globals);
-        codeblock = codeblock.replace(/^\n+/g, "");
-        codeblock = codeblock.replace(/\n+$/g, "");
-        codeblock = "<pre><code" + (language ? ' class="' + language + " language-" + language + '"' : "") + ">" + codeblock + end2 + "</code></pre>";
-        codeblock = showdown2.subParser("hashBlock")(codeblock, options, globals);
-        return "\n\n¨G" + (globals.ghCodeBlocks.push({ text: wholeMatch, codeblock }) - 1) + "G\n\n";
-      });
-      text = text.replace(/¨0/, "");
-      return globals.converter._dispatch("githubCodeBlocks.after", text, options, globals);
-    });
-    showdown2.subParser("hashBlock", function(text, options, globals) {
-      text = globals.converter._dispatch("hashBlock.before", text, options, globals);
-      text = text.replace(/(^\n+|\n+$)/g, "");
-      text = "\n\n¨K" + (globals.gHtmlBlocks.push(text) - 1) + "K\n\n";
-      text = globals.converter._dispatch("hashBlock.after", text, options, globals);
-      return text;
-    });
-    showdown2.subParser("hashCodeTags", function(text, options, globals) {
-      text = globals.converter._dispatch("hashCodeTags.before", text, options, globals);
-      var repFunc = function(wholeMatch, match, left2, right2) {
-        var codeblock = left2 + showdown2.subParser("encodeCode")(match, options, globals) + right2;
-        return "¨C" + (globals.gHtmlSpans.push(codeblock) - 1) + "C";
-      };
-      text = showdown2.helper.replaceRecursiveRegExp(text, repFunc, "<code\\b[^>]*>", "</code>", "gim");
-      text = globals.converter._dispatch("hashCodeTags.after", text, options, globals);
-      return text;
-    });
-    showdown2.subParser("hashElement", function(text, options, globals) {
-      return function(wholeMatch, m1) {
-        var blockText = m1;
-        blockText = blockText.replace(/\n\n/g, "\n");
-        blockText = blockText.replace(/^\n/, "");
-        blockText = blockText.replace(/\n+$/g, "");
-        blockText = "\n\n¨K" + (globals.gHtmlBlocks.push(blockText) - 1) + "K\n\n";
-        return blockText;
-      };
-    });
-    showdown2.subParser("hashHTMLBlocks", function(text, options, globals) {
-      text = globals.converter._dispatch("hashHTMLBlocks.before", text, options, globals);
-      var blockTags = [
-        "pre",
-        "div",
-        "h1",
-        "h2",
-        "h3",
-        "h4",
-        "h5",
-        "h6",
-        "blockquote",
-        "table",
-        "dl",
-        "ol",
-        "ul",
-        "script",
-        "noscript",
-        "form",
-        "fieldset",
-        "iframe",
-        "math",
-        "style",
-        "section",
-        "header",
-        "footer",
-        "nav",
-        "article",
-        "aside",
-        "address",
-        "audio",
-        "canvas",
-        "figure",
-        "hgroup",
-        "output",
-        "video",
-        "p"
-      ], repFunc = function(wholeMatch, match, left2, right2) {
-        var txt = wholeMatch;
-        if (left2.search(/\bmarkdown\b/) !== -1) {
-          txt = left2 + globals.converter.makeHtml(match) + right2;
-        }
-        return "\n\n¨K" + (globals.gHtmlBlocks.push(txt) - 1) + "K\n\n";
-      };
-      if (options.backslashEscapesHTMLTags) {
-        text = text.replace(/\\<(\/?[^>]+?)>/g, function(wm, inside) {
-          return "&lt;" + inside + "&gt;";
-        });
-      }
-      for (var i = 0; i < blockTags.length; ++i) {
-        var opTagPos, rgx1 = new RegExp("^ {0,3}(<" + blockTags[i] + "\\b[^>]*>)", "im"), patLeft = "<" + blockTags[i] + "\\b[^>]*>", patRight = "</" + blockTags[i] + ">";
-        while ((opTagPos = showdown2.helper.regexIndexOf(text, rgx1)) !== -1) {
-          var subTexts = showdown2.helper.splitAtIndex(text, opTagPos), newSubText1 = showdown2.helper.replaceRecursiveRegExp(subTexts[1], repFunc, patLeft, patRight, "im");
-          if (newSubText1 === subTexts[1]) {
-            break;
-          }
-          text = subTexts[0].concat(newSubText1);
-        }
-      }
-      text = text.replace(
-        /(\n {0,3}(<(hr)\b([^<>])*?\/?>)[ \t]*(?=\n{2,}))/g,
-        showdown2.subParser("hashElement")(text, options, globals)
-      );
-      text = showdown2.helper.replaceRecursiveRegExp(text, function(txt) {
-        return "\n\n¨K" + (globals.gHtmlBlocks.push(txt) - 1) + "K\n\n";
-      }, "^ {0,3}<!--", "-->", "gm");
-      text = text.replace(
-        /(?:\n\n)( {0,3}(?:<([?%])[^\r]*?\2>)[ \t]*(?=\n{2,}))/g,
-        showdown2.subParser("hashElement")(text, options, globals)
-      );
-      text = globals.converter._dispatch("hashHTMLBlocks.after", text, options, globals);
-      return text;
-    });
-    showdown2.subParser("hashHTMLSpans", function(text, options, globals) {
-      text = globals.converter._dispatch("hashHTMLSpans.before", text, options, globals);
-      function hashHTMLSpan(html) {
-        return "¨C" + (globals.gHtmlSpans.push(html) - 1) + "C";
-      }
-      text = text.replace(/<[^>]+?\/>/gi, function(wm) {
-        return hashHTMLSpan(wm);
-      });
-      text = text.replace(/<([^>]+?)>[\s\S]*?<\/\1>/g, function(wm) {
-        return hashHTMLSpan(wm);
-      });
-      text = text.replace(/<([^>]+?)\s[^>]+?>[\s\S]*?<\/\1>/g, function(wm) {
-        return hashHTMLSpan(wm);
-      });
-      text = text.replace(/<[^>]+?>/gi, function(wm) {
-        return hashHTMLSpan(wm);
-      });
-      text = globals.converter._dispatch("hashHTMLSpans.after", text, options, globals);
-      return text;
-    });
-    showdown2.subParser("unhashHTMLSpans", function(text, options, globals) {
-      text = globals.converter._dispatch("unhashHTMLSpans.before", text, options, globals);
-      for (var i = 0; i < globals.gHtmlSpans.length; ++i) {
-        var repText = globals.gHtmlSpans[i], limit = 0;
-        while (/¨C(\d+)C/.test(repText)) {
-          var num = RegExp.$1;
-          repText = repText.replace("¨C" + num + "C", globals.gHtmlSpans[num]);
-          if (limit === 10) {
-            console.error("maximum nesting of 10 spans reached!!!");
-            break;
-          }
-          ++limit;
-        }
-        text = text.replace("¨C" + i + "C", repText);
-      }
-      text = globals.converter._dispatch("unhashHTMLSpans.after", text, options, globals);
-      return text;
-    });
-    showdown2.subParser("hashPreCodeTags", function(text, options, globals) {
-      text = globals.converter._dispatch("hashPreCodeTags.before", text, options, globals);
-      var repFunc = function(wholeMatch, match, left2, right2) {
-        var codeblock = left2 + showdown2.subParser("encodeCode")(match, options, globals) + right2;
-        return "\n\n¨G" + (globals.ghCodeBlocks.push({ text: wholeMatch, codeblock }) - 1) + "G\n\n";
-      };
-      text = showdown2.helper.replaceRecursiveRegExp(text, repFunc, "^ {0,3}<pre\\b[^>]*>\\s*<code\\b[^>]*>", "^ {0,3}</code>\\s*</pre>", "gim");
-      text = globals.converter._dispatch("hashPreCodeTags.after", text, options, globals);
-      return text;
-    });
-    showdown2.subParser("headers", function(text, options, globals) {
-      text = globals.converter._dispatch("headers.before", text, options, globals);
-      var headerLevelStart = isNaN(parseInt(options.headerLevelStart)) ? 1 : parseInt(options.headerLevelStart), setextRegexH1 = options.smoothLivePreview ? /^(.+)[ \t]*\n={2,}[ \t]*\n+/gm : /^(.+)[ \t]*\n=+[ \t]*\n+/gm, setextRegexH2 = options.smoothLivePreview ? /^(.+)[ \t]*\n-{2,}[ \t]*\n+/gm : /^(.+)[ \t]*\n-+[ \t]*\n+/gm;
-      text = text.replace(setextRegexH1, function(wholeMatch, m1) {
-        var spanGamut = showdown2.subParser("spanGamut")(m1, options, globals), hID = options.noHeaderId ? "" : ' id="' + headerId(m1) + '"', hLevel = headerLevelStart, hashBlock = "<h" + hLevel + hID + ">" + spanGamut + "</h" + hLevel + ">";
-        return showdown2.subParser("hashBlock")(hashBlock, options, globals);
-      });
-      text = text.replace(setextRegexH2, function(matchFound, m1) {
-        var spanGamut = showdown2.subParser("spanGamut")(m1, options, globals), hID = options.noHeaderId ? "" : ' id="' + headerId(m1) + '"', hLevel = headerLevelStart + 1, hashBlock = "<h" + hLevel + hID + ">" + spanGamut + "</h" + hLevel + ">";
-        return showdown2.subParser("hashBlock")(hashBlock, options, globals);
-      });
-      var atxStyle = options.requireSpaceBeforeHeadingText ? /^(#{1,6})[ \t]+(.+?)[ \t]*#*\n+/gm : /^(#{1,6})[ \t]*(.+?)[ \t]*#*\n+/gm;
-      text = text.replace(atxStyle, function(wholeMatch, m1, m2) {
-        var hText = m2;
-        if (options.customizedHeaderId) {
-          hText = m2.replace(/\s?\{([^{]+?)}\s*$/, "");
-        }
-        var span = showdown2.subParser("spanGamut")(hText, options, globals), hID = options.noHeaderId ? "" : ' id="' + headerId(m2) + '"', hLevel = headerLevelStart - 1 + m1.length, header = "<h" + hLevel + hID + ">" + span + "</h" + hLevel + ">";
-        return showdown2.subParser("hashBlock")(header, options, globals);
-      });
-      function headerId(m2) {
-        var title, prefix;
-        if (options.customizedHeaderId) {
-          var match = m2.match(/\{([^{]+?)}\s*$/);
-          if (match && match[1]) {
-            m2 = match[1];
-          }
-        }
-        title = m2;
-        if (showdown2.helper.isString(options.prefixHeaderId)) {
-          prefix = options.prefixHeaderId;
-        } else if (options.prefixHeaderId === true) {
-          prefix = "section-";
-        } else {
-          prefix = "";
-        }
-        if (!options.rawPrefixHeaderId) {
-          title = prefix + title;
-        }
-        if (options.ghCompatibleHeaderId) {
-          title = title.replace(/ /g, "-").replace(/&amp;/g, "").replace(/¨T/g, "").replace(/¨D/g, "").replace(/[&+$,\/:;=?@"#{}|^¨~\[\]`\\*)(%.!'<>]/g, "").toLowerCase();
-        } else if (options.rawHeaderId) {
-          title = title.replace(/ /g, "-").replace(/&amp;/g, "&").replace(/¨T/g, "¨").replace(/¨D/g, "$").replace(/["']/g, "-").toLowerCase();
-        } else {
-          title = title.replace(/[^\w]/g, "").toLowerCase();
-        }
-        if (options.rawPrefixHeaderId) {
-          title = prefix + title;
-        }
-        if (globals.hashLinkCounts[title]) {
-          title = title + "-" + globals.hashLinkCounts[title]++;
-        } else {
-          globals.hashLinkCounts[title] = 1;
-        }
-        return title;
-      }
-      text = globals.converter._dispatch("headers.after", text, options, globals);
-      return text;
-    });
-    showdown2.subParser("horizontalRule", function(text, options, globals) {
-      text = globals.converter._dispatch("horizontalRule.before", text, options, globals);
-      var key = showdown2.subParser("hashBlock")("<hr />", options, globals);
-      text = text.replace(/^ {0,2}( ?-){3,}[ \t]*$/gm, key);
-      text = text.replace(/^ {0,2}( ?\*){3,}[ \t]*$/gm, key);
-      text = text.replace(/^ {0,2}( ?_){3,}[ \t]*$/gm, key);
-      text = globals.converter._dispatch("horizontalRule.after", text, options, globals);
-      return text;
-    });
-    showdown2.subParser("images", function(text, options, globals) {
-      text = globals.converter._dispatch("images.before", text, options, globals);
-      var inlineRegExp = /!\[([^\]]*?)][ \t]*()\([ \t]?<?([\S]+?(?:\([\S]*?\)[\S]*?)?)>?(?: =([*\d]+[A-Za-z%]{0,4})x([*\d]+[A-Za-z%]{0,4}))?[ \t]*(?:(["'])([^"]*?)\6)?[ \t]?\)/g, crazyRegExp = /!\[([^\]]*?)][ \t]*()\([ \t]?<([^>]*)>(?: =([*\d]+[A-Za-z%]{0,4})x([*\d]+[A-Za-z%]{0,4}))?[ \t]*(?:(?:(["'])([^"]*?)\6))?[ \t]?\)/g, base64RegExp = /!\[([^\]]*?)][ \t]*()\([ \t]?<?(data:.+?\/.+?;base64,[A-Za-z0-9+/=\n]+?)>?(?: =([*\d]+[A-Za-z%]{0,4})x([*\d]+[A-Za-z%]{0,4}))?[ \t]*(?:(["'])([^"]*?)\6)?[ \t]?\)/g, referenceRegExp = /!\[([^\]]*?)] ?(?:\n *)?\[([\s\S]*?)]()()()()()/g, refShortcutRegExp = /!\[([^\[\]]+)]()()()()()/g;
-      function writeImageTagBase64(wholeMatch, altText, linkId, url, width2, height2, m5, title) {
-        url = url.replace(/\s/g, "");
-        return writeImageTag(wholeMatch, altText, linkId, url, width2, height2, m5, title);
-      }
-      function writeImageTag(wholeMatch, altText, linkId, url, width2, height2, m5, title) {
-        var gUrls = globals.gUrls, gTitles = globals.gTitles, gDims = globals.gDimensions;
-        linkId = linkId.toLowerCase();
-        if (!title) {
-          title = "";
-        }
-        if (wholeMatch.search(/\(<?\s*>? ?(['"].*['"])?\)$/m) > -1) {
-          url = "";
-        } else if (url === "" || url === null) {
-          if (linkId === "" || linkId === null) {
-            linkId = altText.toLowerCase().replace(/ ?\n/g, " ");
-          }
-          url = "#" + linkId;
-          if (!showdown2.helper.isUndefined(gUrls[linkId])) {
-            url = gUrls[linkId];
-            if (!showdown2.helper.isUndefined(gTitles[linkId])) {
-              title = gTitles[linkId];
-            }
-            if (!showdown2.helper.isUndefined(gDims[linkId])) {
-              width2 = gDims[linkId].width;
-              height2 = gDims[linkId].height;
-            }
-          } else {
-            return wholeMatch;
-          }
-        }
-        altText = altText.replace(/"/g, "&quot;").replace(showdown2.helper.regexes.asteriskDashAndColon, showdown2.helper.escapeCharactersCallback);
-        url = url.replace(showdown2.helper.regexes.asteriskDashAndColon, showdown2.helper.escapeCharactersCallback);
-        var result = '<img src="' + url + '" alt="' + altText + '"';
-        if (title && showdown2.helper.isString(title)) {
-          title = title.replace(/"/g, "&quot;").replace(showdown2.helper.regexes.asteriskDashAndColon, showdown2.helper.escapeCharactersCallback);
-          result += ' title="' + title + '"';
-        }
-        if (width2 && height2) {
-          width2 = width2 === "*" ? "auto" : width2;
-          height2 = height2 === "*" ? "auto" : height2;
-          result += ' width="' + width2 + '"';
-          result += ' height="' + height2 + '"';
-        }
-        result += " />";
-        return result;
-      }
-      text = text.replace(referenceRegExp, writeImageTag);
-      text = text.replace(base64RegExp, writeImageTagBase64);
-      text = text.replace(crazyRegExp, writeImageTag);
-      text = text.replace(inlineRegExp, writeImageTag);
-      text = text.replace(refShortcutRegExp, writeImageTag);
-      text = globals.converter._dispatch("images.after", text, options, globals);
-      return text;
-    });
-    showdown2.subParser("italicsAndBold", function(text, options, globals) {
-      text = globals.converter._dispatch("italicsAndBold.before", text, options, globals);
-      function parseInside(txt, left2, right2) {
-        return left2 + txt + right2;
-      }
-      if (options.literalMidWordUnderscores) {
-        text = text.replace(/\b___(\S[\s\S]*?)___\b/g, function(wm, txt) {
-          return parseInside(txt, "<strong><em>", "</em></strong>");
-        });
-        text = text.replace(/\b__(\S[\s\S]*?)__\b/g, function(wm, txt) {
-          return parseInside(txt, "<strong>", "</strong>");
-        });
-        text = text.replace(/\b_(\S[\s\S]*?)_\b/g, function(wm, txt) {
-          return parseInside(txt, "<em>", "</em>");
-        });
-      } else {
-        text = text.replace(/___(\S[\s\S]*?)___/g, function(wm, m2) {
-          return /\S$/.test(m2) ? parseInside(m2, "<strong><em>", "</em></strong>") : wm;
-        });
-        text = text.replace(/__(\S[\s\S]*?)__/g, function(wm, m2) {
-          return /\S$/.test(m2) ? parseInside(m2, "<strong>", "</strong>") : wm;
-        });
-        text = text.replace(/_([^\s_][\s\S]*?)_/g, function(wm, m2) {
-          return /\S$/.test(m2) ? parseInside(m2, "<em>", "</em>") : wm;
-        });
-      }
-      if (options.literalMidWordAsterisks) {
-        text = text.replace(/([^*]|^)\B\*\*\*(\S[\s\S]*?)\*\*\*\B(?!\*)/g, function(wm, lead, txt) {
-          return parseInside(txt, lead + "<strong><em>", "</em></strong>");
-        });
-        text = text.replace(/([^*]|^)\B\*\*(\S[\s\S]*?)\*\*\B(?!\*)/g, function(wm, lead, txt) {
-          return parseInside(txt, lead + "<strong>", "</strong>");
-        });
-        text = text.replace(/([^*]|^)\B\*(\S[\s\S]*?)\*\B(?!\*)/g, function(wm, lead, txt) {
-          return parseInside(txt, lead + "<em>", "</em>");
-        });
-      } else {
-        text = text.replace(/\*\*\*(\S[\s\S]*?)\*\*\*/g, function(wm, m2) {
-          return /\S$/.test(m2) ? parseInside(m2, "<strong><em>", "</em></strong>") : wm;
-        });
-        text = text.replace(/\*\*(\S[\s\S]*?)\*\*/g, function(wm, m2) {
-          return /\S$/.test(m2) ? parseInside(m2, "<strong>", "</strong>") : wm;
-        });
-        text = text.replace(/\*([^\s*][\s\S]*?)\*/g, function(wm, m2) {
-          return /\S$/.test(m2) ? parseInside(m2, "<em>", "</em>") : wm;
-        });
-      }
-      text = globals.converter._dispatch("italicsAndBold.after", text, options, globals);
-      return text;
-    });
-    showdown2.subParser("lists", function(text, options, globals) {
-      function processListItems(listStr, trimTrailing) {
-        globals.gListLevel++;
-        listStr = listStr.replace(/\n{2,}$/, "\n");
-        listStr += "¨0";
-        var rgx = /(\n)?(^ {0,3})([*+-]|\d+[.])[ \t]+((\[(x|X| )?])?[ \t]*[^\r]+?(\n{1,2}))(?=\n*(¨0| {0,3}([*+-]|\d+[.])[ \t]+))/gm, isParagraphed = /\n[ \t]*\n(?!¨0)/.test(listStr);
-        if (options.disableForced4SpacesIndentedSublists) {
-          rgx = /(\n)?(^ {0,3})([*+-]|\d+[.])[ \t]+((\[(x|X| )?])?[ \t]*[^\r]+?(\n{1,2}))(?=\n*(¨0|\2([*+-]|\d+[.])[ \t]+))/gm;
-        }
-        listStr = listStr.replace(rgx, function(wholeMatch, m1, m2, m3, m4, taskbtn, checked) {
-          checked = checked && checked.trim() !== "";
-          var item = showdown2.subParser("outdent")(m4, options, globals), bulletStyle = "";
-          if (taskbtn && options.tasklists) {
-            bulletStyle = ' class="task-list-item" style="list-style-type: none;"';
-            item = item.replace(/^[ \t]*\[(x|X| )?]/m, function() {
-              var otp = '<input type="checkbox" disabled style="margin: 0px 0.35em 0.25em -1.6em; vertical-align: middle;"';
-              if (checked) {
-                otp += " checked";
-              }
-              otp += ">";
-              return otp;
-            });
-          }
-          item = item.replace(/^([-*+]|\d\.)[ \t]+[\S\n ]*/g, function(wm2) {
-            return "¨A" + wm2;
-          });
-          if (m1 || item.search(/\n{2,}/) > -1) {
-            item = showdown2.subParser("githubCodeBlocks")(item, options, globals);
-            item = showdown2.subParser("blockGamut")(item, options, globals);
-          } else {
-            item = showdown2.subParser("lists")(item, options, globals);
-            item = item.replace(/\n$/, "");
-            item = showdown2.subParser("hashHTMLBlocks")(item, options, globals);
-            item = item.replace(/\n\n+/g, "\n\n");
-            if (isParagraphed) {
-              item = showdown2.subParser("paragraphs")(item, options, globals);
-            } else {
-              item = showdown2.subParser("spanGamut")(item, options, globals);
-            }
-          }
-          item = item.replace("¨A", "");
-          item = "<li" + bulletStyle + ">" + item + "</li>\n";
-          return item;
-        });
-        listStr = listStr.replace(/¨0/g, "");
-        globals.gListLevel--;
-        if (trimTrailing) {
-          listStr = listStr.replace(/\s+$/, "");
-        }
-        return listStr;
-      }
-      function styleStartNumber(list, listType) {
-        if (listType === "ol") {
-          var res = list.match(/^ *(\d+)\./);
-          if (res && res[1] !== "1") {
-            return ' start="' + res[1] + '"';
-          }
-        }
-        return "";
-      }
-      function parseConsecutiveLists(list, listType, trimTrailing) {
-        var olRgx = options.disableForced4SpacesIndentedSublists ? /^ ?\d+\.[ \t]/gm : /^ {0,3}\d+\.[ \t]/gm, ulRgx = options.disableForced4SpacesIndentedSublists ? /^ ?[*+-][ \t]/gm : /^ {0,3}[*+-][ \t]/gm, counterRxg = listType === "ul" ? olRgx : ulRgx, result = "";
-        if (list.search(counterRxg) !== -1) {
-          (function parseCL(txt) {
-            var pos = txt.search(counterRxg), style3 = styleStartNumber(list, listType);
-            if (pos !== -1) {
-              result += "\n\n<" + listType + style3 + ">\n" + processListItems(txt.slice(0, pos), !!trimTrailing) + "</" + listType + ">\n";
-              listType = listType === "ul" ? "ol" : "ul";
-              counterRxg = listType === "ul" ? olRgx : ulRgx;
-              parseCL(txt.slice(pos));
-            } else {
-              result += "\n\n<" + listType + style3 + ">\n" + processListItems(txt, !!trimTrailing) + "</" + listType + ">\n";
-            }
-          })(list);
-        } else {
-          var style2 = styleStartNumber(list, listType);
-          result = "\n\n<" + listType + style2 + ">\n" + processListItems(list, !!trimTrailing) + "</" + listType + ">\n";
-        }
-        return result;
-      }
-      text = globals.converter._dispatch("lists.before", text, options, globals);
-      text += "¨0";
-      if (globals.gListLevel) {
-        text = text.replace(
-          /^(( {0,3}([*+-]|\d+[.])[ \t]+)[^\r]+?(¨0|\n{2,}(?=\S)(?![ \t]*(?:[*+-]|\d+[.])[ \t]+)))/gm,
-          function(wholeMatch, list, m2) {
-            var listType = m2.search(/[*+-]/g) > -1 ? "ul" : "ol";
-            return parseConsecutiveLists(list, listType, true);
-          }
-        );
-      } else {
-        text = text.replace(
-          /(\n\n|^\n?)(( {0,3}([*+-]|\d+[.])[ \t]+)[^\r]+?(¨0|\n{2,}(?=\S)(?![ \t]*(?:[*+-]|\d+[.])[ \t]+)))/gm,
-          function(wholeMatch, m1, list, m3) {
-            var listType = m3.search(/[*+-]/g) > -1 ? "ul" : "ol";
-            return parseConsecutiveLists(list, listType, false);
-          }
-        );
-      }
-      text = text.replace(/¨0/, "");
-      text = globals.converter._dispatch("lists.after", text, options, globals);
-      return text;
-    });
-    showdown2.subParser("metadata", function(text, options, globals) {
-      if (!options.metadata) {
-        return text;
-      }
-      text = globals.converter._dispatch("metadata.before", text, options, globals);
-      function parseMetadataContents(content) {
-        globals.metadata.raw = content;
-        content = content.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
-        content = content.replace(/\n {4}/g, " ");
-        content.replace(/^([\S ]+): +([\s\S]+?)$/gm, function(wm, key, value) {
-          globals.metadata.parsed[key] = value;
-          return "";
-        });
-      }
-      text = text.replace(/^\s*«««+(\S*?)\n([\s\S]+?)\n»»»+\n/, function(wholematch, format, content) {
-        parseMetadataContents(content);
-        return "¨M";
-      });
-      text = text.replace(/^\s*---+(\S*?)\n([\s\S]+?)\n---+\n/, function(wholematch, format, content) {
-        if (format) {
-          globals.metadata.format = format;
-        }
-        parseMetadataContents(content);
-        return "¨M";
-      });
-      text = text.replace(/¨M/g, "");
-      text = globals.converter._dispatch("metadata.after", text, options, globals);
-      return text;
-    });
-    showdown2.subParser("outdent", function(text, options, globals) {
-      text = globals.converter._dispatch("outdent.before", text, options, globals);
-      text = text.replace(/^(\t|[ ]{1,4})/gm, "¨0");
-      text = text.replace(/¨0/g, "");
-      text = globals.converter._dispatch("outdent.after", text, options, globals);
-      return text;
-    });
-    showdown2.subParser("paragraphs", function(text, options, globals) {
-      text = globals.converter._dispatch("paragraphs.before", text, options, globals);
-      text = text.replace(/^\n+/g, "");
-      text = text.replace(/\n+$/g, "");
-      var grafs = text.split(/\n{2,}/g), grafsOut = [], end2 = grafs.length;
-      for (var i = 0; i < end2; i++) {
-        var str = grafs[i];
-        if (str.search(/¨(K|G)(\d+)\1/g) >= 0) {
-          grafsOut.push(str);
-        } else if (str.search(/\S/) >= 0) {
-          str = showdown2.subParser("spanGamut")(str, options, globals);
-          str = str.replace(/^([ \t]*)/g, "<p>");
-          str += "</p>";
-          grafsOut.push(str);
-        }
-      }
-      end2 = grafsOut.length;
-      for (i = 0; i < end2; i++) {
-        var blockText = "", grafsOutIt = grafsOut[i], codeFlag = false;
-        while (/¨(K|G)(\d+)\1/.test(grafsOutIt)) {
-          var delim = RegExp.$1, num = RegExp.$2;
-          if (delim === "K") {
-            blockText = globals.gHtmlBlocks[num];
-          } else {
-            if (codeFlag) {
-              blockText = showdown2.subParser("encodeCode")(globals.ghCodeBlocks[num].text, options, globals);
-            } else {
-              blockText = globals.ghCodeBlocks[num].codeblock;
-            }
-          }
-          blockText = blockText.replace(/\$/g, "$$$$");
-          grafsOutIt = grafsOutIt.replace(/(\n\n)?¨(K|G)\d+\2(\n\n)?/, blockText);
-          if (/^<pre\b[^>]*>\s*<code\b[^>]*>/.test(grafsOutIt)) {
-            codeFlag = true;
-          }
-        }
-        grafsOut[i] = grafsOutIt;
-      }
-      text = grafsOut.join("\n");
-      text = text.replace(/^\n+/g, "");
-      text = text.replace(/\n+$/g, "");
-      return globals.converter._dispatch("paragraphs.after", text, options, globals);
-    });
-    showdown2.subParser("runExtension", function(ext, text, options, globals) {
-      if (ext.filter) {
-        text = ext.filter(text, globals.converter, options);
-      } else if (ext.regex) {
-        var re = ext.regex;
-        if (!(re instanceof RegExp)) {
-          re = new RegExp(re, "g");
-        }
-        text = text.replace(re, ext.replace);
-      }
-      return text;
-    });
-    showdown2.subParser("spanGamut", function(text, options, globals) {
-      text = globals.converter._dispatch("spanGamut.before", text, options, globals);
-      text = showdown2.subParser("codeSpans")(text, options, globals);
-      text = showdown2.subParser("escapeSpecialCharsWithinTagAttributes")(text, options, globals);
-      text = showdown2.subParser("encodeBackslashEscapes")(text, options, globals);
-      text = showdown2.subParser("images")(text, options, globals);
-      text = showdown2.subParser("anchors")(text, options, globals);
-      text = showdown2.subParser("autoLinks")(text, options, globals);
-      text = showdown2.subParser("simplifiedAutoLinks")(text, options, globals);
-      text = showdown2.subParser("emoji")(text, options, globals);
-      text = showdown2.subParser("underline")(text, options, globals);
-      text = showdown2.subParser("italicsAndBold")(text, options, globals);
-      text = showdown2.subParser("strikethrough")(text, options, globals);
-      text = showdown2.subParser("ellipsis")(text, options, globals);
-      text = showdown2.subParser("hashHTMLSpans")(text, options, globals);
-      text = showdown2.subParser("encodeAmpsAndAngles")(text, options, globals);
-      if (options.simpleLineBreaks) {
-        if (!/\n\n¨K/.test(text)) {
-          text = text.replace(/\n+/g, "<br />\n");
-        }
-      } else {
-        text = text.replace(/  +\n/g, "<br />\n");
-      }
-      text = globals.converter._dispatch("spanGamut.after", text, options, globals);
-      return text;
-    });
-    showdown2.subParser("strikethrough", function(text, options, globals) {
-      function parseInside(txt) {
-        if (options.simplifiedAutoLink) {
-          txt = showdown2.subParser("simplifiedAutoLinks")(txt, options, globals);
-        }
-        return "<del>" + txt + "</del>";
-      }
-      if (options.strikethrough) {
-        text = globals.converter._dispatch("strikethrough.before", text, options, globals);
-        text = text.replace(/(?:~){2}([\s\S]+?)(?:~){2}/g, function(wm, txt) {
-          return parseInside(txt);
-        });
-        text = globals.converter._dispatch("strikethrough.after", text, options, globals);
-      }
-      return text;
-    });
-    showdown2.subParser("stripLinkDefinitions", function(text, options, globals) {
-      var regex = /^ {0,3}\[([^\]]+)]:[ \t]*\n?[ \t]*<?([^>\s]+)>?(?: =([*\d]+[A-Za-z%]{0,4})x([*\d]+[A-Za-z%]{0,4}))?[ \t]*\n?[ \t]*(?:(\n*)["|'(](.+?)["|')][ \t]*)?(?:\n+|(?=¨0))/gm, base64Regex = /^ {0,3}\[([^\]]+)]:[ \t]*\n?[ \t]*<?(data:.+?\/.+?;base64,[A-Za-z0-9+/=\n]+?)>?(?: =([*\d]+[A-Za-z%]{0,4})x([*\d]+[A-Za-z%]{0,4}))?[ \t]*\n?[ \t]*(?:(\n*)["|'(](.+?)["|')][ \t]*)?(?:\n\n|(?=¨0)|(?=\n\[))/gm;
-      text += "¨0";
-      var replaceFunc = function(wholeMatch, linkId, url, width2, height2, blankLines, title) {
-        linkId = linkId.toLowerCase();
-        if (text.toLowerCase().split(linkId).length - 1 < 2) {
-          return wholeMatch;
-        }
-        if (url.match(/^data:.+?\/.+?;base64,/)) {
-          globals.gUrls[linkId] = url.replace(/\s/g, "");
-        } else {
-          globals.gUrls[linkId] = showdown2.subParser("encodeAmpsAndAngles")(url, options, globals);
-        }
-        if (blankLines) {
-          return blankLines + title;
-        } else {
-          if (title) {
-            globals.gTitles[linkId] = title.replace(/"|'/g, "&quot;");
-          }
-          if (options.parseImgDimensions && width2 && height2) {
-            globals.gDimensions[linkId] = {
-              width: width2,
-              height: height2
-            };
-          }
-        }
-        return "";
-      };
-      text = text.replace(base64Regex, replaceFunc);
-      text = text.replace(regex, replaceFunc);
-      text = text.replace(/¨0/, "");
-      return text;
-    });
-    showdown2.subParser("tables", function(text, options, globals) {
-      if (!options.tables) {
-        return text;
-      }
-      var tableRgx = /^ {0,3}\|?.+\|.+\n {0,3}\|?[ \t]*:?[ \t]*(?:[-=]){2,}[ \t]*:?[ \t]*\|[ \t]*:?[ \t]*(?:[-=]){2,}[\s\S]+?(?:\n\n|¨0)/gm, singeColTblRgx = /^ {0,3}\|.+\|[ \t]*\n {0,3}\|[ \t]*:?[ \t]*(?:[-=]){2,}[ \t]*:?[ \t]*\|[ \t]*\n( {0,3}\|.+\|[ \t]*\n)*(?:\n|¨0)/gm;
-      function parseStyles(sLine) {
-        if (/^:[ \t]*--*$/.test(sLine)) {
-          return ' style="text-align:left;"';
-        } else if (/^--*[ \t]*:[ \t]*$/.test(sLine)) {
-          return ' style="text-align:right;"';
-        } else if (/^:[ \t]*--*[ \t]*:$/.test(sLine)) {
-          return ' style="text-align:center;"';
-        } else {
-          return "";
-        }
-      }
-      function parseHeaders(header, style2) {
-        var id = "";
-        header = header.trim();
-        if (options.tablesHeaderId || options.tableHeaderId) {
-          id = ' id="' + header.replace(/ /g, "_").toLowerCase() + '"';
-        }
-        header = showdown2.subParser("spanGamut")(header, options, globals);
-        return "<th" + id + style2 + ">" + header + "</th>\n";
-      }
-      function parseCells(cell, style2) {
-        var subText = showdown2.subParser("spanGamut")(cell, options, globals);
-        return "<td" + style2 + ">" + subText + "</td>\n";
-      }
-      function buildTable(headers, cells) {
-        var tb = "<table>\n<thead>\n<tr>\n", tblLgn = headers.length;
-        for (var i = 0; i < tblLgn; ++i) {
-          tb += headers[i];
-        }
-        tb += "</tr>\n</thead>\n<tbody>\n";
-        for (i = 0; i < cells.length; ++i) {
-          tb += "<tr>\n";
-          for (var ii = 0; ii < tblLgn; ++ii) {
-            tb += cells[i][ii];
-          }
-          tb += "</tr>\n";
-        }
-        tb += "</tbody>\n</table>\n";
-        return tb;
-      }
-      function parseTable(rawTable) {
-        var i, tableLines = rawTable.split("\n");
-        for (i = 0; i < tableLines.length; ++i) {
-          if (/^ {0,3}\|/.test(tableLines[i])) {
-            tableLines[i] = tableLines[i].replace(/^ {0,3}\|/, "");
-          }
-          if (/\|[ \t]*$/.test(tableLines[i])) {
-            tableLines[i] = tableLines[i].replace(/\|[ \t]*$/, "");
-          }
-          tableLines[i] = showdown2.subParser("codeSpans")(tableLines[i], options, globals);
-        }
-        var rawHeaders = tableLines[0].split("|").map(function(s) {
-          return s.trim();
-        }), rawStyles = tableLines[1].split("|").map(function(s) {
-          return s.trim();
-        }), rawCells = [], headers = [], styles = [], cells = [];
-        tableLines.shift();
-        tableLines.shift();
-        for (i = 0; i < tableLines.length; ++i) {
-          if (tableLines[i].trim() === "") {
-            continue;
-          }
-          rawCells.push(
-            tableLines[i].split("|").map(function(s) {
-              return s.trim();
-            })
-          );
-        }
-        if (rawHeaders.length < rawStyles.length) {
-          return rawTable;
-        }
-        for (i = 0; i < rawStyles.length; ++i) {
-          styles.push(parseStyles(rawStyles[i]));
-        }
-        for (i = 0; i < rawHeaders.length; ++i) {
-          if (showdown2.helper.isUndefined(styles[i])) {
-            styles[i] = "";
-          }
-          headers.push(parseHeaders(rawHeaders[i], styles[i]));
-        }
-        for (i = 0; i < rawCells.length; ++i) {
-          var row = [];
-          for (var ii = 0; ii < headers.length; ++ii) {
-            if (showdown2.helper.isUndefined(rawCells[i][ii]))
-              ;
-            row.push(parseCells(rawCells[i][ii], styles[ii]));
-          }
-          cells.push(row);
-        }
-        return buildTable(headers, cells);
-      }
-      text = globals.converter._dispatch("tables.before", text, options, globals);
-      text = text.replace(/\\(\|)/g, showdown2.helper.escapeCharactersCallback);
-      text = text.replace(tableRgx, parseTable);
-      text = text.replace(singeColTblRgx, parseTable);
-      text = globals.converter._dispatch("tables.after", text, options, globals);
-      return text;
-    });
-    showdown2.subParser("underline", function(text, options, globals) {
-      if (!options.underline) {
-        return text;
-      }
-      text = globals.converter._dispatch("underline.before", text, options, globals);
-      if (options.literalMidWordUnderscores) {
-        text = text.replace(/\b___(\S[\s\S]*?)___\b/g, function(wm, txt) {
-          return "<u>" + txt + "</u>";
-        });
-        text = text.replace(/\b__(\S[\s\S]*?)__\b/g, function(wm, txt) {
-          return "<u>" + txt + "</u>";
-        });
-      } else {
-        text = text.replace(/___(\S[\s\S]*?)___/g, function(wm, m2) {
-          return /\S$/.test(m2) ? "<u>" + m2 + "</u>" : wm;
-        });
-        text = text.replace(/__(\S[\s\S]*?)__/g, function(wm, m2) {
-          return /\S$/.test(m2) ? "<u>" + m2 + "</u>" : wm;
-        });
-      }
-      text = text.replace(/(_)/g, showdown2.helper.escapeCharactersCallback);
-      text = globals.converter._dispatch("underline.after", text, options, globals);
-      return text;
-    });
-    showdown2.subParser("unescapeSpecialChars", function(text, options, globals) {
-      text = globals.converter._dispatch("unescapeSpecialChars.before", text, options, globals);
-      text = text.replace(/¨E(\d+)E/g, function(wholeMatch, m1) {
-        var charCodeToReplace = parseInt(m1);
-        return String.fromCharCode(charCodeToReplace);
-      });
-      text = globals.converter._dispatch("unescapeSpecialChars.after", text, options, globals);
-      return text;
-    });
-    showdown2.subParser("makeMarkdown.blockquote", function(node, globals) {
-      var txt = "";
-      if (node.hasChildNodes()) {
-        var children = node.childNodes, childrenLength = children.length;
-        for (var i = 0; i < childrenLength; ++i) {
-          var innerTxt = showdown2.subParser("makeMarkdown.node")(children[i], globals);
-          if (innerTxt === "") {
-            continue;
-          }
-          txt += innerTxt;
-        }
-      }
-      txt = txt.trim();
-      txt = "> " + txt.split("\n").join("\n> ");
-      return txt;
-    });
-    showdown2.subParser("makeMarkdown.codeBlock", function(node, globals) {
-      var lang = node.getAttribute("language"), num = node.getAttribute("precodenum");
-      return "```" + lang + "\n" + globals.preList[num] + "\n```";
-    });
-    showdown2.subParser("makeMarkdown.codeSpan", function(node) {
-      return "`" + node.innerHTML + "`";
-    });
-    showdown2.subParser("makeMarkdown.emphasis", function(node, globals) {
-      var txt = "";
-      if (node.hasChildNodes()) {
-        txt += "*";
-        var children = node.childNodes, childrenLength = children.length;
-        for (var i = 0; i < childrenLength; ++i) {
-          txt += showdown2.subParser("makeMarkdown.node")(children[i], globals);
-        }
-        txt += "*";
-      }
-      return txt;
-    });
-    showdown2.subParser("makeMarkdown.header", function(node, globals, headerLevel) {
-      var headerMark = new Array(headerLevel + 1).join("#"), txt = "";
-      if (node.hasChildNodes()) {
-        txt = headerMark + " ";
-        var children = node.childNodes, childrenLength = children.length;
-        for (var i = 0; i < childrenLength; ++i) {
-          txt += showdown2.subParser("makeMarkdown.node")(children[i], globals);
-        }
-      }
-      return txt;
-    });
-    showdown2.subParser("makeMarkdown.hr", function() {
-      return "---";
-    });
-    showdown2.subParser("makeMarkdown.image", function(node) {
-      var txt = "";
-      if (node.hasAttribute("src")) {
-        txt += "![" + node.getAttribute("alt") + "](";
-        txt += "<" + node.getAttribute("src") + ">";
-        if (node.hasAttribute("width") && node.hasAttribute("height")) {
-          txt += " =" + node.getAttribute("width") + "x" + node.getAttribute("height");
-        }
-        if (node.hasAttribute("title")) {
-          txt += ' "' + node.getAttribute("title") + '"';
-        }
-        txt += ")";
-      }
-      return txt;
-    });
-    showdown2.subParser("makeMarkdown.links", function(node, globals) {
-      var txt = "";
-      if (node.hasChildNodes() && node.hasAttribute("href")) {
-        var children = node.childNodes, childrenLength = children.length;
-        txt = "[";
-        for (var i = 0; i < childrenLength; ++i) {
-          txt += showdown2.subParser("makeMarkdown.node")(children[i], globals);
-        }
-        txt += "](";
-        txt += "<" + node.getAttribute("href") + ">";
-        if (node.hasAttribute("title")) {
-          txt += ' "' + node.getAttribute("title") + '"';
-        }
-        txt += ")";
-      }
-      return txt;
-    });
-    showdown2.subParser("makeMarkdown.list", function(node, globals, type) {
-      var txt = "";
-      if (!node.hasChildNodes()) {
-        return "";
-      }
-      var listItems = node.childNodes, listItemsLenght = listItems.length, listNum = node.getAttribute("start") || 1;
-      for (var i = 0; i < listItemsLenght; ++i) {
-        if (typeof listItems[i].tagName === "undefined" || listItems[i].tagName.toLowerCase() !== "li") {
-          continue;
-        }
-        var bullet = "";
-        if (type === "ol") {
-          bullet = listNum.toString() + ". ";
-        } else {
-          bullet = "- ";
-        }
-        txt += bullet + showdown2.subParser("makeMarkdown.listItem")(listItems[i], globals);
-        ++listNum;
-      }
-      txt += "\n<!-- -->\n";
-      return txt.trim();
-    });
-    showdown2.subParser("makeMarkdown.listItem", function(node, globals) {
-      var listItemTxt = "";
-      var children = node.childNodes, childrenLenght = children.length;
-      for (var i = 0; i < childrenLenght; ++i) {
-        listItemTxt += showdown2.subParser("makeMarkdown.node")(children[i], globals);
-      }
-      if (!/\n$/.test(listItemTxt)) {
-        listItemTxt += "\n";
-      } else {
-        listItemTxt = listItemTxt.split("\n").join("\n    ").replace(/^ {4}$/gm, "").replace(/\n\n+/g, "\n\n");
-      }
-      return listItemTxt;
-    });
-    showdown2.subParser("makeMarkdown.node", function(node, globals, spansOnly) {
-      spansOnly = spansOnly || false;
-      var txt = "";
-      if (node.nodeType === 3) {
-        return showdown2.subParser("makeMarkdown.txt")(node, globals);
-      }
-      if (node.nodeType === 8) {
-        return "<!--" + node.data + "-->\n\n";
-      }
-      if (node.nodeType !== 1) {
-        return "";
-      }
-      var tagName = node.tagName.toLowerCase();
-      switch (tagName) {
-        case "h1":
-          if (!spansOnly) {
-            txt = showdown2.subParser("makeMarkdown.header")(node, globals, 1) + "\n\n";
-          }
-          break;
-        case "h2":
-          if (!spansOnly) {
-            txt = showdown2.subParser("makeMarkdown.header")(node, globals, 2) + "\n\n";
-          }
-          break;
-        case "h3":
-          if (!spansOnly) {
-            txt = showdown2.subParser("makeMarkdown.header")(node, globals, 3) + "\n\n";
-          }
-          break;
-        case "h4":
-          if (!spansOnly) {
-            txt = showdown2.subParser("makeMarkdown.header")(node, globals, 4) + "\n\n";
-          }
-          break;
-        case "h5":
-          if (!spansOnly) {
-            txt = showdown2.subParser("makeMarkdown.header")(node, globals, 5) + "\n\n";
-          }
-          break;
-        case "h6":
-          if (!spansOnly) {
-            txt = showdown2.subParser("makeMarkdown.header")(node, globals, 6) + "\n\n";
-          }
-          break;
-        case "p":
-          if (!spansOnly) {
-            txt = showdown2.subParser("makeMarkdown.paragraph")(node, globals) + "\n\n";
-          }
-          break;
-        case "blockquote":
-          if (!spansOnly) {
-            txt = showdown2.subParser("makeMarkdown.blockquote")(node, globals) + "\n\n";
-          }
-          break;
-        case "hr":
-          if (!spansOnly) {
-            txt = showdown2.subParser("makeMarkdown.hr")(node, globals) + "\n\n";
-          }
-          break;
-        case "ol":
-          if (!spansOnly) {
-            txt = showdown2.subParser("makeMarkdown.list")(node, globals, "ol") + "\n\n";
-          }
-          break;
-        case "ul":
-          if (!spansOnly) {
-            txt = showdown2.subParser("makeMarkdown.list")(node, globals, "ul") + "\n\n";
-          }
-          break;
-        case "precode":
-          if (!spansOnly) {
-            txt = showdown2.subParser("makeMarkdown.codeBlock")(node, globals) + "\n\n";
-          }
-          break;
-        case "pre":
-          if (!spansOnly) {
-            txt = showdown2.subParser("makeMarkdown.pre")(node, globals) + "\n\n";
-          }
-          break;
-        case "table":
-          if (!spansOnly) {
-            txt = showdown2.subParser("makeMarkdown.table")(node, globals) + "\n\n";
-          }
-          break;
-        case "code":
-          txt = showdown2.subParser("makeMarkdown.codeSpan")(node, globals);
-          break;
-        case "em":
-        case "i":
-          txt = showdown2.subParser("makeMarkdown.emphasis")(node, globals);
-          break;
-        case "strong":
-        case "b":
-          txt = showdown2.subParser("makeMarkdown.strong")(node, globals);
-          break;
-        case "del":
-          txt = showdown2.subParser("makeMarkdown.strikethrough")(node, globals);
-          break;
-        case "a":
-          txt = showdown2.subParser("makeMarkdown.links")(node, globals);
-          break;
-        case "img":
-          txt = showdown2.subParser("makeMarkdown.image")(node, globals);
-          break;
-        default:
-          txt = node.outerHTML + "\n\n";
-      }
-      return txt;
-    });
-    showdown2.subParser("makeMarkdown.paragraph", function(node, globals) {
-      var txt = "";
-      if (node.hasChildNodes()) {
-        var children = node.childNodes, childrenLength = children.length;
-        for (var i = 0; i < childrenLength; ++i) {
-          txt += showdown2.subParser("makeMarkdown.node")(children[i], globals);
-        }
-      }
-      txt = txt.trim();
-      return txt;
-    });
-    showdown2.subParser("makeMarkdown.pre", function(node, globals) {
-      var num = node.getAttribute("prenum");
-      return "<pre>" + globals.preList[num] + "</pre>";
-    });
-    showdown2.subParser("makeMarkdown.strikethrough", function(node, globals) {
-      var txt = "";
-      if (node.hasChildNodes()) {
-        txt += "~~";
-        var children = node.childNodes, childrenLength = children.length;
-        for (var i = 0; i < childrenLength; ++i) {
-          txt += showdown2.subParser("makeMarkdown.node")(children[i], globals);
-        }
-        txt += "~~";
-      }
-      return txt;
-    });
-    showdown2.subParser("makeMarkdown.strong", function(node, globals) {
-      var txt = "";
-      if (node.hasChildNodes()) {
-        txt += "**";
-        var children = node.childNodes, childrenLength = children.length;
-        for (var i = 0; i < childrenLength; ++i) {
-          txt += showdown2.subParser("makeMarkdown.node")(children[i], globals);
-        }
-        txt += "**";
-      }
-      return txt;
-    });
-    showdown2.subParser("makeMarkdown.table", function(node, globals) {
-      var txt = "", tableArray = [[], []], headings = node.querySelectorAll("thead>tr>th"), rows = node.querySelectorAll("tbody>tr"), i, ii;
-      for (i = 0; i < headings.length; ++i) {
-        var headContent = showdown2.subParser("makeMarkdown.tableCell")(headings[i], globals), allign = "---";
-        if (headings[i].hasAttribute("style")) {
-          var style2 = headings[i].getAttribute("style").toLowerCase().replace(/\s/g, "");
-          switch (style2) {
-            case "text-align:left;":
-              allign = ":---";
-              break;
-            case "text-align:right;":
-              allign = "---:";
-              break;
-            case "text-align:center;":
-              allign = ":---:";
-              break;
-          }
-        }
-        tableArray[0][i] = headContent.trim();
-        tableArray[1][i] = allign;
-      }
-      for (i = 0; i < rows.length; ++i) {
-        var r2 = tableArray.push([]) - 1, cols = rows[i].getElementsByTagName("td");
-        for (ii = 0; ii < headings.length; ++ii) {
-          var cellContent = " ";
-          if (typeof cols[ii] !== "undefined") {
-            cellContent = showdown2.subParser("makeMarkdown.tableCell")(cols[ii], globals);
-          }
-          tableArray[r2].push(cellContent);
-        }
-      }
-      var cellSpacesCount = 3;
-      for (i = 0; i < tableArray.length; ++i) {
-        for (ii = 0; ii < tableArray[i].length; ++ii) {
-          var strLen = tableArray[i][ii].length;
-          if (strLen > cellSpacesCount) {
-            cellSpacesCount = strLen;
-          }
-        }
-      }
-      for (i = 0; i < tableArray.length; ++i) {
-        for (ii = 0; ii < tableArray[i].length; ++ii) {
-          if (i === 1) {
-            if (tableArray[i][ii].slice(-1) === ":") {
-              tableArray[i][ii] = showdown2.helper.padEnd(tableArray[i][ii].slice(-1), cellSpacesCount - 1, "-") + ":";
-            } else {
-              tableArray[i][ii] = showdown2.helper.padEnd(tableArray[i][ii], cellSpacesCount, "-");
-            }
-          } else {
-            tableArray[i][ii] = showdown2.helper.padEnd(tableArray[i][ii], cellSpacesCount);
-          }
-        }
-        txt += "| " + tableArray[i].join(" | ") + " |\n";
-      }
-      return txt.trim();
-    });
-    showdown2.subParser("makeMarkdown.tableCell", function(node, globals) {
-      var txt = "";
-      if (!node.hasChildNodes()) {
-        return "";
-      }
-      var children = node.childNodes, childrenLength = children.length;
-      for (var i = 0; i < childrenLength; ++i) {
-        txt += showdown2.subParser("makeMarkdown.node")(children[i], globals, true);
-      }
-      return txt.trim();
-    });
-    showdown2.subParser("makeMarkdown.txt", function(node) {
-      var txt = node.nodeValue;
-      txt = txt.replace(/ +/g, " ");
-      txt = txt.replace(/¨NBSP;/g, " ");
-      txt = showdown2.helper.unescapeHTMLEntities(txt);
-      txt = txt.replace(/([*_~|`])/g, "\\$1");
-      txt = txt.replace(/^(\s*)>/g, "\\$1>");
-      txt = txt.replace(/^#/gm, "\\#");
-      txt = txt.replace(/^(\s*)([-=]{3,})(\s*)$/, "$1\\$2$3");
-      txt = txt.replace(/^( {0,3}\d+)\./gm, "$1\\.");
-      txt = txt.replace(/^( {0,3})([+-])/gm, "$1\\$2");
-      txt = txt.replace(/]([\s]*)\(/g, "\\]$1\\(");
-      txt = txt.replace(/^ {0,3}\[([\S \t]*?)]:/gm, "\\[$1]:");
-      return txt;
-    });
-    var root2 = this;
-    if (module.exports) {
-      module.exports = showdown2;
-    } else {
-      root2.showdown = showdown2;
-    }
-  }).call(commonjsGlobal);
-})(showdown);
-var showdownExports = showdown.exports;
-async function getSummary(url, signal) {
-  const mdConverter = new showdownExports.Converter();
+async function getSummary(sid, url, signal) {
   return {
-    status: "green",
-    summary: mdConverter.makeHtml(`- **Security Responsibility**: Users are responsible for keeping their account access secure.
-      - **Liability Limits**: Robinhood isn't liable for unauthorized access or system failures.
-      - **Access Rights**: Robinhood can restrict or terminate accounts at any time without notice.
-      - **Electronic Communications**: Users agree to receive documents and communications electronically.
-      - **Contact Information**: Users must keep their contact details current.
-      - **Governing Law**: Governed by California law, with some federal and FINRA regulations also applicable.`)
+    category: "Healthcare",
+    average_rating: 2,
+    summary: [
+      "Aacah f auehfiouahwef uaiwhefuh weuhf aiuwehfyaw f f awhef awfu awu fuiaw fu awifu hiuwHE FUIW HF",
+      "IBasdbfe uhefu eufh au hefiuah fuahweiufh ao hfua sfha usifhaiuww fhai hfi fi awfiu",
+      "IUBdf aouf aouehf oaih efu auehf aoueh fuaeh fuah efah iuef h9wh d"
+    ],
+    features: ["Personal Data", "Information Collected", "Information Disclosed"],
+    ratings: [3, 2, 5],
+    explanations: [
+      "Aacah f auehfiouahwef uaiwhefuh weuhf aiuwehfyaw f f awhef awfu awu fuiaw fu awifu hiuwHE FUIW HF",
+      "IBasdbfe uhefu eufh au hefiuah fuahweiufh ao hfua sfha usifhaiuww fhai hfi fi awfiu",
+      "IUBdf aouf aouehf oaih efu auehf aoueh fuaeh fuah efah iuef h9wh d"
+    ]
   };
 }
-async function getChatResponse(url, message, signal) {
+async function getChatResponse(sid, url, message, signal) {
   await new Promise((resolve) => setTimeout(resolve, 2e3));
   return `Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.`;
 }
-var Send = {};
+function getSessionToken() {
+  let sid = window.localStorage.getItem("clause-pause-extension-session-id");
+  if (sid === null) {
+    sid = getRandomToken();
+    window.localStorage.setItem("clause-pause-extension-session-id", sid);
+  }
+  return sid;
+}
+function getRandomToken() {
+  var randomPool = new Uint8Array(32);
+  crypto.getRandomValues(randomPool);
+  var hex = "";
+  for (var i = 0; i < randomPool.length; ++i) {
+    hex += randomPool[i].toString(16);
+  }
+  return hex;
+}
+var Gavel = {};
 var interopRequireDefault = { exports: {} };
 (function(module) {
   function _interopRequireDefault2(obj) {
@@ -8992,7 +5721,7 @@ function createMixins(breakpoints, mixins) {
 var colorManipulator = {};
 const require$$1 = /* @__PURE__ */ getAugmentedNamespace(formatMuiErrorMessage);
 const require$$2 = /* @__PURE__ */ getAugmentedNamespace(clamp);
-var _interopRequireDefault$2 = interopRequireDefaultExports;
+var _interopRequireDefault$4 = interopRequireDefaultExports;
 Object.defineProperty(colorManipulator, "__esModule", {
   value: true
 });
@@ -9014,8 +5743,8 @@ colorManipulator.private_safeEmphasize = private_safeEmphasize;
 colorManipulator.private_safeLighten = private_safeLighten;
 colorManipulator.recomposeColor = recomposeColor;
 colorManipulator.rgbToHex = rgbToHex;
-var _formatMuiErrorMessage2 = _interopRequireDefault$2(require$$1);
-var _clamp = _interopRequireDefault$2(require$$2);
+var _formatMuiErrorMessage2 = _interopRequireDefault$4(require$$1);
+var _clamp = _interopRequireDefault$4(require$$2);
 function clampWrapper(value, min2 = 0, max2 = 1) {
   return (0, _clamp.default)(value, min2, max2);
 }
@@ -9881,21 +6610,21 @@ const require$$5 = /* @__PURE__ */ getAugmentedNamespace(capitalize);
 const require$$6 = /* @__PURE__ */ getAugmentedNamespace(getDisplayName);
 const require$$7 = /* @__PURE__ */ getAugmentedNamespace(createTheme$1);
 const require$$8 = /* @__PURE__ */ getAugmentedNamespace(styleFunctionSx);
-var _interopRequireDefault$1 = interopRequireDefaultExports;
+var _interopRequireDefault$3 = interopRequireDefaultExports;
 Object.defineProperty(createStyled$1, "__esModule", {
   value: true
 });
 var _default = createStyled$1.default = createStyled;
 createStyled$1.shouldForwardProp = shouldForwardProp;
 createStyled$1.systemDefaultTheme = void 0;
-var _extends2 = _interopRequireDefault$1(require_extends());
-var _objectWithoutPropertiesLoose2 = _interopRequireDefault$1(requireObjectWithoutPropertiesLoose());
+var _extends2 = _interopRequireDefault$3(require_extends());
+var _objectWithoutPropertiesLoose2 = _interopRequireDefault$3(requireObjectWithoutPropertiesLoose());
 var _styledEngine = _interopRequireWildcard(require$$3);
 var _deepmerge = require$$4;
-_interopRequireDefault$1(require$$5);
-_interopRequireDefault$1(require$$6);
-var _createTheme = _interopRequireDefault$1(require$$7);
-var _styleFunctionSx = _interopRequireDefault$1(require$$8);
+_interopRequireDefault$3(require$$5);
+_interopRequireDefault$3(require$$6);
+var _createTheme = _interopRequireDefault$3(require$$7);
+var _styleFunctionSx = _interopRequireDefault$3(require$$8);
 const _excluded$1 = ["ownerState"], _excluded2 = ["variants"], _excluded3 = ["name", "slot", "skipVariantsResolver", "skipSx", "overridesResolver"];
 function _getRequireWildcardCache(e2) {
   if ("function" != typeof WeakMap)
@@ -10286,24 +7015,66 @@ function requireCreateSvgIcon() {
   })(createSvgIcon$1);
   return createSvgIcon$1;
 }
-var _interopRequireDefault = interopRequireDefaultExports;
+var _interopRequireDefault$2 = interopRequireDefaultExports;
+Object.defineProperty(Gavel, "__esModule", {
+  value: true
+});
+var default_1$2 = Gavel.default = void 0;
+var _createSvgIcon$2 = _interopRequireDefault$2(requireCreateSvgIcon());
+var _jsxRuntime$2 = jsxRuntimeExports;
+default_1$2 = Gavel.default = (0, _createSvgIcon$2.default)(/* @__PURE__ */ (0, _jsxRuntime$2.jsx)("path", {
+  d: "m5.2494 8.0688 2.83-2.8269 14.1343 14.15-2.83 2.8269zm4.2363-4.2415 2.828-2.8289 5.6577 5.656-2.828 2.8289zM.9989 12.3147l2.8284-2.8285 5.6569 5.6569-2.8285 2.8284zM1 21h12v2H1z"
+}), "Gavel");
+var Send = {};
+var _interopRequireDefault$1 = interopRequireDefaultExports;
 Object.defineProperty(Send, "__esModule", {
   value: true
 });
-var default_1 = Send.default = void 0;
-var _createSvgIcon = _interopRequireDefault(requireCreateSvgIcon());
-var _jsxRuntime = jsxRuntimeExports;
-default_1 = Send.default = (0, _createSvgIcon.default)(/* @__PURE__ */ (0, _jsxRuntime.jsx)("path", {
+var default_1$1 = Send.default = void 0;
+var _createSvgIcon$1 = _interopRequireDefault$1(requireCreateSvgIcon());
+var _jsxRuntime$1 = jsxRuntimeExports;
+default_1$1 = Send.default = (0, _createSvgIcon$1.default)(/* @__PURE__ */ (0, _jsxRuntime$1.jsx)("path", {
   d: "M2.01 21 23 12 2.01 3 2 10l15 2-15 2z"
 }), "Send");
+var Person = {};
+var _interopRequireDefault = interopRequireDefaultExports;
+Object.defineProperty(Person, "__esModule", {
+  value: true
+});
+var default_1 = Person.default = void 0;
+var _createSvgIcon = _interopRequireDefault(requireCreateSvgIcon());
+var _jsxRuntime = jsxRuntimeExports;
+default_1 = Person.default = (0, _createSvgIcon.default)(/* @__PURE__ */ (0, _jsxRuntime.jsx)("path", {
+  d: "M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4m0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4"
+}), "Person");
 function Chat({ url, domainName, title }) {
   const [chats, setChats] = reactExports.useState([]);
   const [isFetching, setIsFetching] = reactExports.useState(false);
   const [inputText, setInputText] = reactExports.useState("");
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { direction: "column", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(Box, { overflowY: "scroll", flex: "1", children: chats.length < 1 ? /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, {}) : chats.map(({ isUser, message }) => {
-    }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(Box, { position: "relative", children: [
+  reactExports.useCallback(() => {
+    if (inputText.trim() === "")
+      return;
+    setChats((prev) => [...prev, { isUser: true, message: inputText }]);
+    setInputText("");
+    setIsFetching(true);
+    console.log(chats);
+    getChatResponse(getSessionToken(), url, chats.at(-1).message).then((response) => {
+      setChats((prev) => [...prev, { isUser: false, message: response }]);
+    }).catch((err) => {
+      console.log("error fetching chat response", err);
+    }).finally(() => {
+      setIsFetching(false);
+    });
+  }, []);
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Stack, { overflowY: "scroll", flex: "1", alignItems: "center", justifyContent: "center", children: chats.length < 1 ? /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, {}) : chats.map(({ isUser, message }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { direction: "row", width: "100%", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Stack, { alignItems: "center", children: isUser ? /* @__PURE__ */ jsxRuntimeExports.jsx(default_1, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx(default_1$2, {}) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { spacing: "10px", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Text, { fontWeight: 700, fontSize: "18px", children: isUser ? "You" : "Clause" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Text, { children: message })
+      ] })
+    ] })) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { direction: "row", alignItems: "center", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(
         Textarea,
         {
@@ -10319,51 +7090,152 @@ function Chat({ url, domainName, title }) {
       /* @__PURE__ */ jsxRuntimeExports.jsx(
         IconButton,
         {
-          icon: /* @__PURE__ */ jsxRuntimeExports.jsx(default_1, {}),
+          icon: /* @__PURE__ */ jsxRuntimeExports.jsx(default_1$1, {}),
           disabled: isFetching,
-          position: "absolute",
-          right: "20",
-          onClick: (e2) => {
+          onClick: () => {
             if (inputText.trim() === "")
               return;
             setChats((prev) => [...prev, { isUser: true, message: inputText }]);
             setInputText("");
-            const controller = new AbortController();
             setIsFetching(true);
-            getChatResponse(url, chats.at(-1).message, controller.signal).then((response) => {
+            console.log(chats);
+            getChatResponse(url, chats.at(-1).message).then((response) => {
+              console.log("aaaa", response);
               setChats((prev) => [...prev, { isUser: false, message: response }]);
             }).catch((err) => {
               console.log("error fetching chat response", err);
             }).finally(() => {
               setIsFetching(false);
             });
-            return () => {
-              controller.abort();
-            };
           }
         }
       )
     ] })
   ] });
 }
+function Summary({ data }) {
+  return data != void 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(Box, { px: "5px", py: "10px", overflowY: "scroll", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { direction: "row", justifyContent: "space-evenly", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Text, { zIndex: 2, children: data.summary[0] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { alignItems: "center", justifyContent: "center", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Text, { zIndex: 2, fontWeight: 700, fontSize: "16px", mt: "-5px", children: data.category }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          DonutGraph,
+          {
+            value: data.average_rating
+          }
+        )
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { direction: "row", justifyContent: "space-evenly", mt: "-40px", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Text, { zIndex: 2, children: data.summary[1] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { alignItems: "center", justifyContent: "center", mt: "-20px", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Text, { fontWeight: 700, fontSize: "16px", mt: "-5px", zIndex: 2, textAlign: "center", children: data.features[1] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          DonutGraph,
+          {
+            value: data.ratings[1]
+          }
+        )
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { direction: "row", justifyContent: "space-evenly", mt: "-40px", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Text, { zIndex: 2, children: data.summary[2] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { alignItems: "center", justifyContent: "center", mt: "-20px", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Text, { fontWeight: 700, fontSize: "16px", mt: "-5px", zIndex: 2, textAlign: "center", children: data.features[2] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          DonutGraph,
+          {
+            value: data.ratings[2]
+          }
+        )
+      ] })
+    ] })
+  ] });
+}
+const DonutGraph = ({ value }) => {
+  const color2 = value === 5 ? "rgb(44, 193, 44)" : value === 4 ? "rgb(136, 184, 50)" : value === 3 ? "rgb(224, 167, 20)" : value === 2 ? "rgb(208, 103, 33)" : "rgb(190, 30, 38)";
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Box, { position: "relative", mt: "-25px", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      CircularProgress,
+      {
+        value: value / 5 * 50,
+        size: 40,
+        color: color2,
+        sx: {
+          transform: "rotate(-90deg)",
+          position: "relative",
+          zIndex: 0,
+          "&:after": {
+            zIndex: 1,
+            content: '""',
+            width: "80px",
+            height: "235px",
+            position: "absolute",
+            bottom: "5px",
+            left: "2px",
+            bgColor: "white",
+            borderRadius: "50px 50 50 50px"
+          }
+        }
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      Text,
+      {
+        fontWeight: 700,
+        position: "absolute",
+        fontSize: "35px",
+        sx: {
+          top: "30px",
+          left: "70px"
+        },
+        children: value
+      }
+    )
+  ] });
+};
 function Badge({ url, title }) {
   const [data, setData] = reactExports.useState(null);
+  const [isFetching, setIsFetching] = reactExports.useState(false);
   const domainName = reactExports.useMemo(() => {
     let domain = url.match(/^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n]+)/im)[1].split(".");
     domain = domain[domain.length - 2] ?? domain[0];
     return domain[0].toUpperCase() + domain.slice(1).toLowerCase();
   }, []);
-  reactExports.useEffect(() => {
-    const controller = new AbortController();
-    getSummary(url, controller.signal).then(setData);
-    return () => {
-      controller.abort();
-    };
-  }, []);
-  console.log(data == null ? void 0 : data.summary);
-  return data === null ? /* @__PURE__ */ jsxRuntimeExports.jsx(BounceLoader, { size: 20, speedMultiplier: 1.2, color: "blue" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Box, { className: "tnc-crawler-content-container", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Popover, { children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(PopoverTrigger, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { backgroundColor: "green", borderRadius: "50%", width: "20px", height: "20px", cursor: "pointer" } }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(Portal, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(PopoverContent, { minW: "400px", sx: { "&:focus": { boxShadow: "none" } }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Tabs, { isFitted: true, position: "relative", variant: "line", children: [
+  const { isOpen, onToggle, onClose } = useDisclosure$1(
+    // {isOpen: url === 'https://www.amazon.com/gp/help/customer/display.html/ref=ap_register_notification_condition_of_use?ie=UTF8&nodeId=508088'}
+  );
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Box, { className: "tnc-crawler-content-container", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Popover, { returnFocusOnClose: false, isOpen, onClose, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(PopoverTrigger, { children: isFetching ? /* @__PURE__ */ jsxRuntimeExports.jsx(BounceLoader, { size: 25, speedMultiplier: 1.2, color: "blue" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "button",
+      {
+        type: "button",
+        style: {
+          cursor: "pointer",
+          backgroundColor: "blue",
+          border: "none",
+          borderRadius: "50%",
+          width: "25px",
+          height: "25px",
+          marginLeft: "2px",
+          marginBottom: "2px"
+        },
+        onClick: () => {
+          if (isOpen) {
+            onToggle();
+            return;
+          }
+          setIsFetching(true);
+          getSummary(getSessionToken()).then(setData).finally(() => {
+            setIsFetching(false);
+            onToggle();
+          });
+        },
+        children: /* @__PURE__ */ jsxRuntimeExports.jsx(default_1$2, { fontSize: "18px", sx: { color: "white" } })
+      }
+    ) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Portal, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(PopoverContent, { minW: "500px", sx: { "&:focus": { boxShadow: "none" } }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Tabs, { isFitted: true, position: "relative", variant: "line", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(PopoverArrow, {}),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(PopoverHeader, { fontWeight: 700, fontSize: "16px", minW: "fit-content", children: [
         domainName,
@@ -10371,20 +7243,21 @@ function Badge({ url, title }) {
         title
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(PopoverCloseButton, {}),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(PopoverBody, { height: "50vh", maxh: "500px", overflowY: "scroll", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(TabPanels, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TabPanel, { px: "15px", py: "5px", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text, { dangerouslySetInnerHTML: { __html: data.summary } }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(TabPanel, { p: "0px", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Chat, { url, title, domainName }) })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(PopoverBody, { height: "50vh", maxh: "500px", overflow: "auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(TabPanels, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(TabPanel, { p: "0px", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Summary, { data }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(TabPanel, { p: "0px", overflow: "hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Chat, { url, title, domainName }) })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(PopoverFooter, { p: "0px", height: "50px", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(TabList, { height: "50px", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Tab, { children: "Understand" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Tab, { children: "Ask" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Tab, { children: "Summary" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Tab, { children: "Chat" })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(TabIndicator, {})
       ] })
     ] }) }) })
   ] }) });
 }
+const injectedStyle = ".tnc-crawler-content-container * {\n   box-sizing: border-box !important;\n   margin: 0 !important;\n   padding: 0 !important;\n   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;\n}";
 const theme = extendTheme({
   fonts: {
     heading: `'Open Sans', sans-serif`,

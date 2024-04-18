@@ -47,6 +47,7 @@ const manifest = {
     //   css: ['assets/css/contentStyle<KEY>.chunk.css'],
     // },
     {
+      run_at: "document_end",
       matches: ['http://*/*', 'https://*/*', '<all_urls>'],
       js: ['src/pages/contentUI/index.js'],
     },

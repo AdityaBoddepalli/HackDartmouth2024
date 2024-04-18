@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { 
    Box,
    Button,
@@ -12,26 +12,10 @@ import {
    IconButton
 } from "@chakra-ui/react";
 import { getChatResponse } from "../../../api/content";
+import getSessionToken from "../../../../utils/sessionTokenStorage";
 import SendIcon from '@mui/icons-material/Send';
-
-type MessageProps = {
-   text: string;
-   actor: 'user' | 'bot';
- };
- const Message = ({ text, actor }: MessageProps) => {
-   return (
-     <Flex
-       p={4}
-       bg={actor === 'user' ? 'blue.500' : 'gray.100'}
-       color={actor === 'user' ? 'white' : 'gray.600'}
-       borderRadius="lg"
-       w="fit-content"
-       alignSelf={actor === 'user' ? 'flex-end' : 'flex-start'}
-     >
-       <Text>{text}</Text>
-     </Flex>
-   );
-};
+import PersonIcon from '@mui/icons-material/Person';
+import GavelIcon from '@mui/icons-material/Gavel';
 
 export default function Chat({ url, domainName, title }: { url: string, domainName: string, title: string }) {
    const [chats, setChats] = useState<{isUser: boolean, message: string}[]>([]);
@@ -43,20 +27,44 @@ export default function Chat({ url, domainName, title }: { url: string, domainNa
    //    getChatResponse(url,)
    // }, []);
 
+   const onSendClick = useCallback(() => {
+      if (inputText.trim() === "") return;
+      setChats((prev) => [...prev, { isUser: true, message: inputText }]);
+      setInputText("");
+      setIsFetching(true);
+      console.log(chats)
+      getChatResponse(getSessionToken(), url, chats.at(-1).message)
+         .then((response) => {
+            setChats((prev) => [...prev, { isUser: false, message: response }]);
+         })
+         .catch((err) => {
+            console.log("error fetching chat response", err);
+         })
+         .finally(() => {
+            setIsFetching(false);
+         });
+   }, []);
+
+   // useEffect(() => { console.log(inputText) }, [inputText])
+
    return (
       <Stack>
-         <Stack overflowY="scroll" flex="1" alignItems="center">
+         <Stack overflowY="scroll" flex="1" alignItems="center" justifyContent="center">
             {chats.length < 1 ? (<></>) : (
                chats.map(({ isUser, message }) => (
-                  <Stack direction="row">
-                     <Box>
-                        p
-                     </Box>
+                  <Stack direction="row" width="100%">
+                     <Stack alignItems="center">
+                        {isUser ? <PersonIcon /> : <GavelIcon />}
+                     </Stack>
+                     <Stack spacing="10px">
+                        <Text fontWeight={700} fontSize="18px">{isUser ? "You" : "Clause"}</Text>
+                        <Text>{message}</Text>
+                     </Stack>
                   </Stack>
                ))
             )}
          </Stack>
-         <Box position="relative">
+         <Stack direction="row" alignItems="center">
             <Textarea 
                display="block" 
                resize="none" 
@@ -67,16 +75,16 @@ export default function Chat({ url, domainName, title }: { url: string, domainNa
             <IconButton 
                icon={<SendIcon />}
                disabled={isFetching}
-               position="absolute"
-               right="20"
-               onClick={(e) => {
+               onClick={() => {
                   if (inputText.trim() === "") return;
                   setChats((prev) => [...prev, { isUser: true, message: inputText }]);
                   setInputText("");
-                  const controller = new AbortController();
+                  // const controller = new AbortController();
                   setIsFetching(true);
-                  getChatResponse(url, chats.at(-1).message, controller.signal)
+                  console.log(chats)
+                  getChatResponse(url, chats.at(-1).message)
                      .then((response) => {
+                        console.log("aaaa",response);
                         setChats((prev) => [...prev, { isUser: false, message: response }]);
                      })
                      .catch((err) => {
@@ -85,12 +93,9 @@ export default function Chat({ url, domainName, title }: { url: string, domainNa
                      .finally(() => {
                         setIsFetching(false);
                      });
-                  return (() => {
-                     controller.abort();
-                  });
                }}
             />
-         </Box>
+         </Stack>
       </Stack>
    );
 }
