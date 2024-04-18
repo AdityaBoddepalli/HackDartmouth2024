@@ -62,9 +62,10 @@ const manifest = {
       resources: [
         'assets/js/*.js', 
         'assets/css/*.css',
-        "localhost:3000/*" // TODO: add api url
+        // "localhost:3000/*", // TODO: add api url
+        // "*"
       ],
-      matches: ['*://*/*'],
+      matches: ["<all_urls>"],
     },
   ],
 };

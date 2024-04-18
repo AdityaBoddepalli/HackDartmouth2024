@@ -53,10 +53,10 @@ var __vitePreload = function preload(baseModule, deps, importerUrl) {
     }
   });
 };
-__vitePreload(() => import("../../../assets/js/root.js"), true ? __vite__mapDeps([0]) : void 0);
+__vitePreload(() => import("../../../assets/js/root.js"), true ? __vite__mapDeps([]) : void 0);
 function __vite__mapDeps(indexes) {
   if (!__vite__mapDeps.viteFileDeps) {
-    __vite__mapDeps.viteFileDeps = ["assets/css/root.chunk.css"]
+    __vite__mapDeps.viteFileDeps = []
   }
   return indexes.map((i) => __vite__mapDeps.viteFileDeps[i])
 }

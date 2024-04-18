@@ -40,11 +40,10 @@
     {
       "resources": [
         "assets/js/*.js",
-        "assets/css/*.css",
-        "localhost:3000/*"
+        "assets/css/*.css"
       ],
       "matches": [
-        "*://*/*"
+        "<all_urls>"
       ]
     }
   ]

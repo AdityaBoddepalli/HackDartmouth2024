@@ -50,14 +50,14 @@ export default function Chat({ url, domainName, title }: { url: string, domainNa
 
    return (
       <Stack>
-         <Stack overflowY="scroll" flex="1" alignItems="center" justifyContent="center">
-            {chats.length < 1 ? (<></>) : (
+         <Stack overflowY="scroll" flexGrow="1" flexShrink="0" alignItems="center" justifyContent="center">
+            {chats.length < 1 ? (<Box height="100%" />) : (
                chats.map(({ isUser, message }) => (
                   <Stack direction="row" width="100%">
                      <Stack alignItems="center">
                         {isUser ? <PersonIcon /> : <GavelIcon />}
                      </Stack>
-                     <Stack spacing="10px">
+                     <Stack spacing="0px">
                         <Text fontWeight={700} fontSize="18px">{isUser ? "You" : "Clause"}</Text>
                         <Text>{message}</Text>
                      </Stack>
@@ -65,7 +65,7 @@ export default function Chat({ url, domainName, title }: { url: string, domainNa
                ))
             )}
          </Stack>
-         {/* #2257A0 */}
+         {/* <CardFooter> */}
          <Stack direction="row" alignItems="center">
             <Textarea 
                display="block" 
@@ -98,6 +98,7 @@ export default function Chat({ url, domainName, title }: { url: string, domainNa
                }}
             />
          </Stack>
+         {/* </CardFooter> */}
       </Stack>
    );
 }

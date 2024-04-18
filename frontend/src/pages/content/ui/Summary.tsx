@@ -2,7 +2,7 @@ import { CircularProgress, Box, Text, Stack, Center } from '@chakra-ui/react';
 
 
 export default function Summary({ data }) {
-
+   console.log(data);
 
    return data != undefined && (
       <Box px="5px" py="10px" overflowY="scroll">
@@ -10,7 +10,7 @@ export default function Summary({ data }) {
 
          </Stack> */}
          <Stack direction="row" justifyContent="space-evenly">
-            <Text zIndex={2}>{data.summary[0]}</Text>
+            <Text zIndex={2}>{data.explanations[0]}</Text>
             <Stack alignItems="center" justifyContent="center">
                <Text zIndex={2} fontWeight={700} fontSize="16px" mt="-5px">{data.features[0]}</Text>
                <DonutGraph 
@@ -19,7 +19,7 @@ export default function Summary({ data }) {
             </Stack>
          </Stack>
          <Stack direction="row" justifyContent="space-evenly" mt="-40px">
-            <Text zIndex={2}>{data.summary[1]}</Text>
+            <Text zIndex={2}>{data.explanations[1]}</Text>
             <Stack alignItems="center" justifyContent="center" mt="-20px">
                <Text fontWeight={700} fontSize="16px" mt="-5px"zIndex={2} textAlign="center">{data.features[1]}</Text>
                <DonutGraph 
@@ -28,7 +28,7 @@ export default function Summary({ data }) {
             </Stack>
          </Stack>
          <Stack direction="row" justifyContent="space-evenly" mt="-40px">
-            <Text zIndex={2}>{data.summary[2]}</Text>
+            <Text zIndex={2}>{data.explanations[2]}</Text>
             <Stack alignItems="center" justifyContent="center" mt="-20px">
                <Text fontWeight={700} fontSize="16px" mt="-5px"zIndex={2} textAlign="center">{data.features[2]}</Text>
                <DonutGraph 
